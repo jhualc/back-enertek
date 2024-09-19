@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Models\Bateria;
 use Illuminate\Http\Request;
 
 class BateriaController extends Controller
@@ -11,15 +11,9 @@ class BateriaController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        // Obtener todas las baterías
+        $baterias = Bateria::all();
+        return response()->json($baterias);
     }
 
     /**
@@ -27,7 +21,22 @@ class BateriaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validar los datos de entrada
+        $validatedData = $request->validate([
+            'bat_id' => 'required|unique:baterias',
+            'bat_modelo' => 'required|string|max:255',
+            'bat_voltaje' => 'required|numeric',
+            'bat_capacidad' => 'required|numeric',
+            'mar_id' => 'required|exists:marcas,mar_id', 
+        ]);
+
+        // Crear una nueva batería
+        $bateria = Bateria::create($validatedData);
+
+        return response()->json([
+            'message' => 'Batería creada exitosamente',
+            'data' => $bateria
+        ], 201);
     }
 
     /**
@@ -35,15 +44,9 @@ class BateriaController extends Controller
      */
     public function show(string $id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        // Mostrar una batería específica
+        $bateria = Bateria::findOrFail($id);
+        return response()->json($bateria);
     }
 
     /**
@@ -51,7 +54,22 @@ class BateriaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Validar los datos
+        $validatedData = $request->validate([
+            'bat_modelo' => 'required|string|max:255',
+            'bat_voltaje' => 'required|numeric',
+            'bat_capacidad' => 'required|numeric',
+            'mar_id' => 'required|exists:marcas,mar_id',
+        ]);
+
+        // Encontrar y actualizar la batería
+        $bateria = Bateria::findOrFail($id);
+        $bateria->update($validatedData);
+
+        return response()->json([
+            'message' => 'Batería actualizada exitosamente',
+            'data' => $bateria
+        ]);
     }
 
     /**
@@ -59,6 +77,12 @@ class BateriaController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Encontrar y eliminar la batería
+        $bateria = Bateria::findOrFail($id);
+        $bateria->delete();
+
+        return response()->json([
+            'message' => 'Batería eliminada exitosamente'
+        ]);
     }
 }

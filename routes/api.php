@@ -15,6 +15,13 @@ use App\Http\Controllers\ContratoEquipoController;
 use App\Http\Controllers\EquipoController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\TipoEquipoController;
+use App\Http\Controllers\BateriaController;
+use App\Http\Controllers\BateriaEquipoController;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ContratoController;
+
+Route::resource('clientes', ClienteController::class);
+
 
 /*
 |--------------------------------------------------------------------------
@@ -57,7 +64,10 @@ Route::group(['middleware' => 'api'], function($router){
     Route::resource('/equipo', EquipoController::class);
     Route::resource('/marcas', MarcaController::class);
     Route::resource('/tipo-equipo', TipoEquipoController::class);
-
+    Route::resource('/bateria', BateriaController::class);
+    Route::resource('/baterias-equipo', BateriaEquipoController::class);
+    Route::resource('/cliente', ClienteController::class);
+    Route::resource('/contrato', ContratoController::class);
 
 });
 
