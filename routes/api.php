@@ -11,6 +11,8 @@ use App\Http\Controllers\BroadcastController;
 use App\Http\Controllers\EventoPersonaController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\SponsorController;
+use App\Http\Controllers\ContratoEquipoController;
+use App\Http\Controllers\EquipoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,7 +38,7 @@ Route::group(['middleware' => 'api'], function($router){
     Route::get('/users/contact', [ProfileUserController::class, 'contactUsers']);
     Route::get('/users/sponsors', [ProfileUserController::class, 'contactUserSponsors']);
     Route::get('/getUser/{id}', [ProfileUserController::class, 'getUser']);
-    Route::get('/agenda', [AgendaController::class, 'getAllAgenda']);
+    Route::get('958331', [AgendaController::class, 'getAllAgenda']);
     Route::get('/persona', [PersonaController::class, 'getAllPersona']);
     Route::get('/grupo', [GroupController::class, 'getAllGropus']);
     Route::get('/personaById/{per_id}', [PersonaController::class, 'getPersonaById']);
@@ -48,6 +50,11 @@ Route::group(['middleware' => 'api'], function($router){
     Route::get('/sponsor', [SponsorController::class, 'getAllSponsor']);
     Route::post('/profile-user',  [ProfileUserController::class, 'profile_user']);
     Route::post('/personaDataAuthorization',  [ProfileUserController::class, 'setUserAuthorizationPersonalData']);
+    Route::apiResource('/ordenes-trabajo', OrdenTrabajoController::class);
+    Route::resource('/contrato-equipos', ContratoEquipoController::class);
+    Route::resource('/equipos', EquipoController::class);
+
+
 });
 
 

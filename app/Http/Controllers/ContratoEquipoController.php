@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Models\ContratoEquipo;
 use Illuminate\Http\Request;
 
 class ContratoEquipoController extends Controller
@@ -11,7 +11,9 @@ class ContratoEquipoController extends Controller
      */
     public function index()
     {
-        //
+        // Obtener todos los registros
+        $contratosEquipos = ContratoEquipo::all();
+        return response()->json($contratosEquipos);
     }
 
     /**
@@ -19,7 +21,7 @@ class ContratoEquipoController extends Controller
      */
     public function create()
     {
-        //
+        // Generalmente, para las APIs, este método no es necesario
     }
 
     /**
@@ -27,7 +29,22 @@ class ContratoEquipoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validar los datos
+        $validatedData = $request->validate([
+            'coe_id' => 'required',
+            'equi_id' => 'required',
+            'con_id' => 'required',
+            'coe_periodicidad' => 'required',
+            'cli_id' => 'required',
+        ]);
+
+        // Crear nuevo registro
+        $contratoEquipo = ContratoEquipo::create($validatedData);
+
+        return response()->json([
+            'message' => 'Contrato Equipo creado exitosamente',
+            'data' => $contratoEquipo
+        ], 201);
     }
 
     /**
@@ -35,7 +52,9 @@ class ContratoEquipoController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // Mostrar un registro específico
+        $contratoEquipo = ContratoEquipo::findOrFail($id);
+        return response()->json($contratoEquipo);
     }
 
     /**
@@ -43,7 +62,7 @@ class ContratoEquipoController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // Generalmente, para las APIs, este método no es necesario
     }
 
     /**
@@ -51,7 +70,23 @@ class ContratoEquipoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Validar los datos
+        $validatedData = $request->validate([
+            'coe_id' => 'required',
+            'equi_id' => 'required',
+            'con_id' => 'required',
+            'coe_periodicidad' => 'required',
+            'cli_id' => 'required',
+        ]);
+
+        // Encontrar y actualizar el registro
+        $contratoEquipo = ContratoEquipo::findOrFail($id);
+        $contratoEquipo->update($validatedData);
+
+        return response()->json([
+            'message' => 'Contrato Equipo actualizado exitosamente',
+            'data' => $contratoEquipo
+        ]);
     }
 
     /**
@@ -59,6 +94,12 @@ class ContratoEquipoController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Encontrar y eliminar el registro
+        $contratoEquipo = ContratoEquipo::findOrFail($id);
+        $contratoEquipo->delete();
+
+        return response()->json([
+            'message' => 'Contrato Equipo eliminado exitosamente'
+        ]);
     }
 }

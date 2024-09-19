@@ -11,7 +11,8 @@ class OrdenTrabajoController extends Controller
      */
     public function index()
     {
-        //
+        $ordenes = OrdenTrabajo::all();
+        return response()->json($ordenes);
     }
 
     /**
