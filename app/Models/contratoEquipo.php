@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class contratoEquipo extends Model
 {
-    use SoftDeletes;
+    use HasFactory;
+
+    protected $table = 'contrato_equipo'; 
     protected $fillable = [
     
         "coe_id",

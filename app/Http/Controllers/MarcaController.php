@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Models\Marca;
 use Illuminate\Http\Request;
 
 class MarcaController extends Controller
@@ -11,7 +11,9 @@ class MarcaController extends Controller
      */
     public function index()
     {
-        //
+        // Obtener todas las marcas
+        $marcas = Marca::all();
+        return response()->json($marcas);
     }
 
     /**
@@ -19,7 +21,7 @@ class MarcaController extends Controller
      */
     public function create()
     {
-        //
+        // Generalmente, este método no es necesario en APIs
     }
 
     /**
@@ -27,7 +29,19 @@ class MarcaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validar los datos recibidos
+        $validatedData = $request->validate([
+            'mar_id' => 'required|unique:marca',
+            'mar_descripcion' => 'required|string|max:255',
+        ]);
+
+        // Crear la nueva marca
+        $marca = Marca::create($validatedData);
+
+        return response()->json([
+            'message' => 'Marca creada exitosamente',
+            'data' => $marca
+        ], 201);
     }
 
     /**
@@ -35,7 +49,9 @@ class MarcaController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // Mostrar una marca específica
+        $marca = Marca::findOrFail($id);
+        return response()->json($marca);
     }
 
     /**
@@ -43,7 +59,7 @@ class MarcaController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // Generalmente, este método no es necesario en APIs
     }
 
     /**
@@ -51,7 +67,19 @@ class MarcaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Validar los datos recibidos
+        $validatedData = $request->validate([
+            'mar_descripcion' => 'required|string|max:255',
+        ]);
+
+        // Encontrar y actualizar la marca
+        $marca = Marca::findOrFail($id);
+        $marca->update($validatedData);
+
+        return response()->json([
+            'message' => 'Marca actualizada exitosamente',
+            'data' => $marca
+        ]);
     }
 
     /**
@@ -59,6 +87,12 @@ class MarcaController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Encontrar y eliminar la marca
+        $marca = Marca::findOrFail($id);
+        $marca->delete();
+
+        return response()->json([
+            'message' => 'Marca eliminada exitosamente'
+        ]);
     }
 }

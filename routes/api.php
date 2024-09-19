@@ -13,6 +13,8 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\SponsorController;
 use App\Http\Controllers\ContratoEquipoController;
 use App\Http\Controllers\EquipoController;
+use App\Http\Controllers\MarcaController;
+use App\Http\Controllers\TipoEquipoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,9 +52,11 @@ Route::group(['middleware' => 'api'], function($router){
     Route::get('/sponsor', [SponsorController::class, 'getAllSponsor']);
     Route::post('/profile-user',  [ProfileUserController::class, 'profile_user']);
     Route::post('/personaDataAuthorization',  [ProfileUserController::class, 'setUserAuthorizationPersonalData']);
-    Route::apiResource('/ordenes-trabajo', OrdenTrabajoController::class);
-    Route::resource('/contrato-equipos', ContratoEquipoController::class);
-    Route::resource('/equipos', EquipoController::class);
+    //Route::apiResource('/ordenes-trabajo', OrdenTrabajoController::class);
+    Route::resource('/contrato-equipo', ContratoEquipoController::class);
+    Route::resource('/equipo', EquipoController::class);
+    Route::resource('/marcas', MarcaController::class);
+    Route::resource('/tipo-equipo', TipoEquipoController::class);
 
 
 });
