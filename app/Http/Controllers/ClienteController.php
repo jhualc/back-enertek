@@ -1,7 +1,7 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Models\Cliente;
 use Illuminate\Http\Request;
 
 class ClienteController extends Controller
@@ -11,7 +11,9 @@ class ClienteController extends Controller
      */
     public function index()
     {
-        //
+        // Obtener todos los clientes
+        $clientes = Cliente::all();
+        return response()->json($clientes);
     }
 
     /**
@@ -19,7 +21,7 @@ class ClienteController extends Controller
      */
     public function create()
     {
-        //
+        // Generalmente, este método no es necesario en APIs
     }
 
     /**
@@ -27,7 +29,21 @@ class ClienteController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validar los datos recibidos
+        $validatedData = $request->validate([
+            'cli_nombre' => 'required|string|max:255',
+            'cli_identificacion' => 'required|string|max:50|unique:clientes',
+            'cli_tipo_identificacion' => 'required|string|max:50',
+            'otr_id' => 'nullable|exists:otras_tablas,otr_id', // Asegúrate de que la tabla relacionada exista
+        ]);
+
+        // Crear un nuevo cliente
+        $cliente = Cliente::create($validatedData);
+
+        return response()->json([
+            'message' => 'Cliente creado exitosamente',
+            'data' => $cliente
+        ], 201);
     }
 
     /**
@@ -35,7 +51,9 @@ class ClienteController extends Controller
      */
     public function show(string $id)
     {
-        //
+        // Mostrar un cliente específico
+        $cliente = Cliente::findOrFail($id);
+        return response()->json($cliente);
     }
 
     /**
@@ -43,7 +61,7 @@ class ClienteController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // Generalmente, este método no es necesario en APIs
     }
 
     /**
@@ -51,7 +69,22 @@ class ClienteController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Validar los datos recibidos
+        $validatedData = $request->validate([
+            'cli_nombre' => 'required|string|max:255',
+            'cli_identificacion' => 'required|string|max:50|unique:clientes,cli_identificacion,' . $id . ',cli_id',
+            'cli_tipo_identificacion' => 'required|string|max:50',
+            'otr_id' => 'nullable|exists:otras_tablas,otr_id', // Asegúrate de que la tabla relacionada exista
+        ]);
+
+        // Encontrar y actualizar el cliente
+        $cliente = Cliente::findOrFail($id);
+        $cliente->update($validatedData);
+
+        return response()->json([
+            'message' => 'Cliente actualizado exitosamente',
+            'data' => $cliente
+        ]);
     }
 
     /**
@@ -59,6 +92,12 @@ class ClienteController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Encontrar y eliminar el cliente
+        $cliente = Cliente::findOrFail($id);
+        $cliente->delete();
+
+        return response()->json([
+            'message' => 'Cliente eliminado exitosamente'
+        ]);
     }
 }
