@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class TipoEquipo extends Model
 {
-    use SoftDeletes;
+    use HasFactory;
+
+    protected $table = 'tipo_equipo'; 
     protected $fillable = [
-    
-        "teq_id",
-        "teq_descripcion"
-        
+        'teq_id',
+        'teq_descripcion',
     ];
+
+    protected $primaryKey = 'teq_id'; 
 }
