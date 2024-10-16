@@ -15,6 +15,8 @@ class Marca extends Model
     protected $fillable = [
         'mar_id',
         'mar_descripcion',
+        "created_at" ,
+        "updated_at" ,
     ];
 
     protected $primaryKey = 'mar_id'; 

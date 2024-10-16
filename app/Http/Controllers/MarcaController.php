@@ -31,7 +31,7 @@ class MarcaController extends Controller
     {
         // Validar los datos recibidos
         $validatedData = $request->validate([
-            'mar_id' => 'required|unique:marca',
+            'mar_id' => 'unique:marca',
             'mar_descripcion' => 'required|string|max:255',
         ]);
 
