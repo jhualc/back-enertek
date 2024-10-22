@@ -13,7 +13,11 @@ class ContratoEquipoController extends Controller
     {
         // Obtener todos los registros
         $contratosEquipos = ContratoEquipo::all();
-        return response()->json($contratosEquipos);
+        return response()->json([
+            'message' => 'Respuesta Ok',
+            'marca' => $contratosEquipos
+            ], 201);
+       
     }
 
     /**

@@ -13,7 +13,12 @@ class BateriaEquipoController extends Controller
     {
         // Obtener todos los registros de baterías asociadas a equipos
         $bateriasEquipos = BateriaEquipo::all();
-        return response()->json($bateriasEquipos);
+
+        return response()->json([
+            'message' => 'Respuesta Ok',
+            'marca' => $bateriasEquipos
+            ], 201);
+     
     }
 
     /**

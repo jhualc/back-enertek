@@ -13,7 +13,11 @@ class BateriaController extends Controller
     {
         // Obtener todas las baterías
         $baterias = Bateria::all();
-        return response()->json($baterias);
+
+        return response()->json([
+            'message' => 'Respuesta Ok',
+            'bateria' => $baterias
+        ], 201);
     }
 
     /**

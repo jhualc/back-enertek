@@ -12,7 +12,10 @@ class OrdenTrabajoController extends Controller
     public function index()
     {
         $ordenes = OrdenTrabajo::all();
-        return response()->json($ordenes);
+        return response()->json([
+            'message' => 'Respuesta Ok',
+            'marca' => $ordenes
+            ], 201);
     }
 
     /**

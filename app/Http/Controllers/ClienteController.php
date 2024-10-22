@@ -13,7 +13,11 @@ class ClienteController extends Controller
     {
         // Obtener todos los clientes
         $clientes = Cliente::all();
-        return response()->json($clientes);
+        return response()->json([
+            'message' => 'Respuesta Ok',
+            'marca' => $clientes
+            ], 201);
+       
     }
 
     /**
