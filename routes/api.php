@@ -68,7 +68,7 @@ Route::group(['middleware' => 'api'], function($router){
     Route::resource('/baterias-equipo', BateriaEquipoController::class);
     Route::resource('/cliente', ClienteController::class);
     Route::resource('/contrato', ContratoController::class);
-    Route::delete('/marcas/delete-multiple', [MarcaController::class, 'destroyMultiple']);
+    Route::delete('/marca/delete-multiple', [MarcaController::class, 'destroyMultiple']);
 
 
 });
