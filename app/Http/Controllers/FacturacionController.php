@@ -11,7 +11,12 @@ class FacturacionController extends Controller
      */
     public function index()
     {
-        //
+        $facturacion = Facturacion::all();
+
+        return response()->json([
+         'message' => 'Respuesta Ok',
+         'marca' => $facturacion
+         ], 201);
     }
 
     /**

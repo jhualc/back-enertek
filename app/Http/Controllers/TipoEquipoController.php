@@ -13,7 +13,10 @@ class TipoEquipoController extends Controller
     {
         // Obtener todos los tipos de equipos
         $tiposEquipos = TipoEquipo::all();
-        return response()->json($tiposEquipos);
+        return response()->json([
+            'message' => 'Respuesta Ok',
+            'marca' => $tiposEquipos
+            ], 201);
     }
 
     /**

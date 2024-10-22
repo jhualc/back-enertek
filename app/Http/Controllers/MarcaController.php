@@ -12,7 +12,7 @@ class MarcaController extends Controller
     public function index()
     {
         // Obtener todas las marcas
-        $marcas = Marca::all();
+        $marcas = Marca::whereNull('deleted_at')->get();
 
         return response()->json([
          'message' => 'Respuesta Ok',
@@ -99,4 +99,27 @@ class MarcaController extends Controller
             'message' => 'Marca eliminada exitosamente'
         ]);
     }
+
+    public function destroyMultiple(Request $request)
+{
+    \Log::info('Entró al método destroyMultiple');
+    
+ 
+    $validatedData = $request->validate([
+        '*.mar_id' => 'required|exists:marca,mar_id', 
+    ]);
+
+   
+    $ids = collect($validatedData)->pluck('mar_id')->all();
+
+    
+    Marca::whereIn('mar_id', $ids)->delete();
+
+    return response()->json([
+        'message' => 'Marcas eliminadas exitosamente'
+    ]);
+}
+
+    
+    
 }

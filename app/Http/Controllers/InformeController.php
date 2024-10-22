@@ -11,7 +11,12 @@ class InformeController extends Controller
      */
     public function index()
     {
-        //
+        $informes = Informe::all();
+
+        return response()->json([
+         'message' => 'Respuesta Ok',
+         'marca' => $informes
+         ], 201);
     }
 
     /**

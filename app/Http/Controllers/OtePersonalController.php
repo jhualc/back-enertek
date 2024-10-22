@@ -11,7 +11,12 @@ class OtePersonalController extends Controller
      */
     public function index()
     {
-        //
+        $marcas = Marca::all();
+
+        return response()->json([
+         'message' => 'Respuesta Ok',
+         'marca' => $marcas
+         ], 201);
     }
 
     /**

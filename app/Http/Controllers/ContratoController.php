@@ -13,7 +13,12 @@ class ContratoController extends Controller
     {
         // Obtener todos los contratos
         $contratos = Contrato::all();
-        return response()->json($contratos);
+
+        return response()->json([
+            'message' => 'Respuesta Ok',
+            'marca' => $contratos
+            ], 201);
+    
     }
 
 

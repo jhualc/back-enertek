@@ -20,7 +20,7 @@ use App\Http\Controllers\BateriaEquipoController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ContratoController;
 
-Route::resource('clientes', ClienteController::class);
+//Route::resource('clientes', ClienteController::class);
 
 
 /*
@@ -68,6 +68,9 @@ Route::group(['middleware' => 'api'], function($router){
     Route::resource('/baterias-equipo', BateriaEquipoController::class);
     Route::resource('/cliente', ClienteController::class);
     Route::resource('/contrato', ContratoController::class);
+   // Route::delete('/marcas/{idMarca}', [MarcaController::class, 'destroy']);
+    Route::delete('/marca/delete-multiple', [MarcaController::class, 'destroyMultiple']);
+
 
 });
 

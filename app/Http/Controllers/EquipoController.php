@@ -13,7 +13,11 @@ class EquipoController extends Controller
     {
         // Obtener todos los registros de equipo
         $equipos = Equipo::all();
-        return response()->json($equipos);
+        return response()->json([
+            'message' => 'Respuesta Ok',
+            'marca' => $equipos
+            ], 201);
+      
     }
 
     /**

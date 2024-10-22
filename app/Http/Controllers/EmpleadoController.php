@@ -11,7 +11,12 @@ class EmpleadoController extends Controller
      */
     public function index()
     {
-        //
+          $empleados = Empleado::all();
+
+        return response()->json([
+         'message' => 'Respuesta Ok',
+         'marca' => $empleados
+         ], 201);
     }
 
     /**

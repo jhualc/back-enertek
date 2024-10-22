@@ -11,7 +11,12 @@ class InstalacionController extends Controller
      */
     public function index()
     {
-        //
+        $instalaciones = Instalacion::all();
+
+        return response()->json([
+         'message' => 'Respuesta Ok',
+         'marca' => $instalaciones
+         ], 201);
     }
 
     /**
