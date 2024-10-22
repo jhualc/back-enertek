@@ -13,7 +13,11 @@ class MarcaController extends Controller
     {
         // Obtener todas las marcas
         $marcas = Marca::all();
-        return response()->json($marcas);
+
+        return response()->json([
+         'message' => 'Respuesta Ok',
+         'marca' => $marcas
+         ], 201);
     }
 
     /**
