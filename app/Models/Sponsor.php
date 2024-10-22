@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sponsor extends Model
 {
-    
+    use HasFactory, SoftDeletes;
     protected $fillable = [
     
         "spo_id",
@@ -17,6 +17,8 @@ class Sponsor extends Model
         "spo_web",
         "spo_contacto",
         "spo_telefono",
-        "spo_correo"
+        "spo_correo",
+        "created_at" ,
+        "updated_at" ,
     ];
 }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Persona extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
     
         "per_id",
@@ -19,8 +19,10 @@ class Persona extends Model
         "per_tipo_persona",
         "per_bio",
         "per_foto",
+        "created_at" ,
+        "updated_at" ,
     ];
 
-
+    protected $dates = ['deleted_at']; 
 
 }

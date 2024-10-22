@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bateria extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'bateria'; 
 
@@ -20,5 +20,8 @@ class Bateria extends Model
         'bat_voltaje',
         'bat_capacidad',
         'mar_id',
+        "created_at" ,
+        "updated_at" ,
     ];
+    protected $dates = ['deleted_at']; 
 }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Agenda extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
     
         "eve_id",
@@ -16,9 +16,11 @@ class Agenda extends Model
         "eve_hora",
         "eve_tipo",
         "eve_dia",
-        "eve_orden"
+        "eve_orden",
+        "created_at" ,
+        "updated_at" ,
     ];
 
-
+    protected $dates = ['deleted_at']; 
 
 }
