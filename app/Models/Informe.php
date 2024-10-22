@@ -7,12 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Informe extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
     
         "inf_id",
         "inf_path",
         "inf_fecha",
+        "created_at" ,
+        "updated_at" ,
         
     ];
+
+    protected $dates = ['deleted_at']; 
 }

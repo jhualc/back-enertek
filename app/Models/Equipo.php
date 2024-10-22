@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Equipo extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'equipo'; 
     protected $fillable = [
@@ -18,6 +18,10 @@ class Equipo extends Model
         "mar_id",
         "teq_id",
         "equ_cant_baterias",
-        "ins_id"
+        "ins_id",
+        "created_at" ,
+        "updated_at" ,
     ];
+
+    protected $dates = ['deleted_at']; 
 }

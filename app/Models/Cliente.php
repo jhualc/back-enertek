@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Cliente extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'cliente'; 
 
@@ -19,5 +19,8 @@ class Cliente extends Model
         'cli_identificacion',
         'cli_tipo_identificacion',
         'otr_id', 
+        "created_at" ,
+        "updated_at" ,
     ];
+    protected $dates = ['deleted_at']; 
 }

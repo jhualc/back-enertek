@@ -7,13 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Empleado extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
     
         "emp_id",
         "emp_nombre",
         "emp_identificacion",
         "emp_telefono",
-        "emp_direccion"
+        "emp_direccion",
+        "created_at" ,
+        "updated_at" ,
     ];
+    protected $dates = ['deleted_at']; 
 }

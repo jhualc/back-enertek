@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Instalacion extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
     
         "ins_id",
@@ -15,6 +15,10 @@ class Instalacion extends Model
         "ins_cant_cable",
         "ins_breaker",
         "ins_otro",
-        "ins_tablero"
+        "ins_tablero",
+        "created_at" ,
+        "updated_at" ,
     ];
+
+    protected $dates = ['deleted_at']; 
 }

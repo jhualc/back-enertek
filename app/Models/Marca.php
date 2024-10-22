@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Marca extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'marca'; 
 
@@ -17,7 +17,10 @@ class Marca extends Model
         'mar_descripcion',
         "created_at" ,
         "updated_at" ,
+        "created_at" ,
+        "updated_at" ,
     ];
 
     protected $primaryKey = 'mar_id'; 
+    protected $dates = ['deleted_at']; 
 }

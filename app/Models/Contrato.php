@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contrato extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'contrato'; 
 
@@ -19,6 +19,11 @@ class Contrato extends Model
         'con_valor',
         'con_periodicidad',
         'con_estado',
-        'cli_id', 
+        'cli_id',
+        "created_at" ,
+        "updated_at" ,
+        "deleted_at",
     ];
+
+    protected $dates = ['deleted_at']; 
 }
