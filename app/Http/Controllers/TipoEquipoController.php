@@ -35,7 +35,7 @@ class TipoEquipoController extends Controller
     {
         // Validar los datos
         $validatedData = $request->validate([
-            'teq_id' => 'required|unique:tipo_equipos',
+            'teq_id' => 'unique:tipo_equipo',
             'teq_descripcion' => 'required|string|max:255',
         ]);
 
