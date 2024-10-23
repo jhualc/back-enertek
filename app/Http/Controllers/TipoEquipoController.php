@@ -12,7 +12,8 @@ class TipoEquipoController extends Controller
     public function index()
     {
         // Obtener todos los tipos de equipos
-        $tiposEquipos = TipoEquipo::all();
+        $tiposEquipos = TipoEquipo::whereNull('deleted_at')->get();
+
         return response()->json([
             'message' => 'Respuesta Ok',
             'marca' => $tiposEquipos
@@ -97,5 +98,41 @@ class TipoEquipoController extends Controller
         return response()->json([
             'message' => 'Tipo de equipo eliminado exitosamente'
         ]);
+    }
+
+    public function destroyMultiple(Request $request)
+    {
+        try {
+        
+           
+            $validatedData = $request->validate([
+                '*.teq_id' => 'required|exists:tipo_equipo,teq_id', 
+            ]);
+
+            $ids = collect($validatedData)->pluck('teq_id')->all();
+
+            Equipo::whereIn('teq_id', $ids)->delete();
+
+            return response()->json([
+                'message' => 'Tipos de Equipo eliminados exitosamente',
+                'eliminados' => $ids 
+            ], 200);
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Captura errores de validación
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors(), 
+                'teq_id_recibidos' => $request->all() 
+            ], 422);
+        
+        } catch (\Exception $e) {
+  
+            return response()->json([
+                'message' => 'Ocurrió un error al intentar eliminar los tipos de equipo',
+                'error' => $e->getMessage(), // Opcional: devuelve el mensaje del error
+                'teq_id_recibidos' => $request->all() // Devuelve los mar_id recibidos para validación
+            ], 500);
+        }
     }
 }
