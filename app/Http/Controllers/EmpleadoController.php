@@ -11,11 +11,12 @@ class EmpleadoController extends Controller
      */
     public function index()
     {
-          $empleados = Empleado::all();
+          $empleados = Empleado::whereNull('deleted_at')->get();
+
 
         return response()->json([
          'message' => 'Respuesta Ok',
-         'marca' => $empleados
+         'empleado' => $empleados
          ], 201);
     }
 

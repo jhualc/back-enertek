@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class OtePersonal extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $table = 'ote-personal'; 
     protected $fillable = [
     
         "otp_id",

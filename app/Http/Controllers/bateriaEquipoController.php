@@ -12,11 +12,12 @@ class BateriaEquipoController extends Controller
     public function index()
     {
         // Obtener todos los registros de baterías asociadas a equipos
-        $bateriasEquipos = BateriaEquipo::all();
+        $bateriasEquipos = BateriaEquipo::whereNull('deleted_at')->get();
+
 
         return response()->json([
             'message' => 'Respuesta Ok',
-            'marca' => $bateriasEquipos
+            'bateria-equipo' => $bateriasEquipos
             ], 201);
      
     }

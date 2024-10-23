@@ -12,11 +12,12 @@ class ContratoController extends Controller
     public function index()
     {
         // Obtener todos los contratos
-        $contratos = Contrato::all();
+        $contratos = Contrato::whereNull('deleted_at')->get();
+
 
         return response()->json([
             'message' => 'Respuesta Ok',
-            'marca' => $contratos
+            'contrato' => $contratos
             ], 201);
     
     }
