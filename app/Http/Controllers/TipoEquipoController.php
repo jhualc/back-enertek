@@ -111,7 +111,7 @@ class TipoEquipoController extends Controller
 
             $ids = collect($validatedData)->pluck('teq_id')->all();
 
-            Equipo::whereIn('teq_id', $ids)->delete();
+            TipoEquipo::whereIn('teq_id', $ids)->delete();
 
             return response()->json([
                 'message' => 'Tipos de Equipo eliminados exitosamente',
