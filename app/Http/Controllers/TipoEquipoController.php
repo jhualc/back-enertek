@@ -16,7 +16,7 @@ class TipoEquipoController extends Controller
 
         return response()->json([
             'message' => 'Respuesta Ok',
-            'tipo-equipo' => $tiposEquipos
+            'tipo_equipo' => $tiposEquipos
             ], 201);
     }
 
