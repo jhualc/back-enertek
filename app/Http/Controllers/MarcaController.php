@@ -120,7 +120,7 @@ class MarcaController extends Controller
             \Log::info('Marcas a eliminar: ' . implode(', ', $ids));
 
             
-            Marca::whereIn('mar_id', $ids)->forceDelete();
+            Marca::whereIn('mar_id', $ids)->delete();
 
             \Log::info('Marcas eliminadas');
 
