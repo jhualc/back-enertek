@@ -101,25 +101,57 @@ class MarcaController extends Controller
     }
 
     public function destroyMultiple(Request $request)
-{
-    \Log::info('Entró al método destroyMultiple');
+    {
+        try {
+        
+
+            \Log::info('Datos recibidos: ' . json_encode($request->all()));
+            $validatedData = $request->validate([
+                '*.mar_id' => 'required|exists:marca,mar_id', 
+            ]);
+
+            
+            \Log::info('Datos validados: ' . json_encode($validatedData));
+
+        
+            $ids = collect($validatedData)->pluck('mar_id')->all();
+        
+            
+            \Log::info('Marcas a eliminar: ' . implode(', ', $ids));
+
+            
+            Marca::whereIn('mar_id', $ids)->forceDelete();
+
+            \Log::info('Marcas eliminadas');
+
+            
+            return response()->json([
+                'message' => 'Marcas eliminadas exitosamente',
+                'eliminados' => $ids 
+            ], 200);
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Captura errores de validación
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors(), 
+                'mar_id_recibidos' => $request->all() 
+            ], 422);
+        
+        } catch (\Exception $e) {
+            
+            \Log::error('Error al eliminar marcas: ' . $e->getMessage());
+
+            return response()->json([
+                'message' => 'Ocurrió un error al intentar eliminar las marcas',
+                'error' => $e->getMessage(), // Opcional: devuelve el mensaje del error
+                'mar_id_recibidos' => $request->all() // Devuelve los mar_id recibidos para validación
+            ], 500);
+        }
+    }
+
     
- 
-    $validatedData = $request->validate([
-        '*.mar_id' => 'required|exists:marca,mar_id', 
-    ]);
-
-   
-    $ids = collect($validatedData)->pluck('mar_id')->all();
-
     
-    Marca::whereIn('mar_id', $ids)->delete();
-
-    return response()->json([
-        'message' => 'Marcas eliminadas exitosamente'
-    ]);
-}
-
     
     
 }

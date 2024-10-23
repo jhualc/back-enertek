@@ -12,10 +12,11 @@ class EquipoController extends Controller
     public function index()
     {
         // Obtener todos los registros de equipo
-        $equipos = Equipo::all();
+        $equipos = Equipo::whereNull('deleted_at')->get();
+
         return response()->json([
             'message' => 'Respuesta Ok',
-            'marca' => $equipos
+            'equipo' => $equipos
             ], 201);
       
     }
@@ -109,5 +110,41 @@ class EquipoController extends Controller
         return response()->json([
             'message' => 'Equipo eliminado exitosamente'
         ]);
+    }
+
+    public function destroyMultiple(Request $request)
+    {
+        try {
+        
+           
+            $validatedData = $request->validate([
+                '*.equ_id' => 'required|exists:equipo,equ_id', 
+            ]);
+
+            $ids = collect($validatedData)->pluck('equ_id')->all();
+
+            Equipo::whereIn('equ_id', $ids)->delete();
+
+            return response()->json([
+                'message' => 'Equipos eliminados exitosamente',
+                'eliminados' => $ids 
+            ], 200);
+        
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Captura errores de validación
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $e->errors(), 
+                'equ_id_recibidos' => $request->all() 
+            ], 422);
+        
+        } catch (\Exception $e) {
+  
+            return response()->json([
+                'message' => 'Ocurrió un error al intentar eliminar los equipos',
+                'error' => $e->getMessage(), // Opcional: devuelve el mensaje del error
+                'equ_id_recibidos' => $request->all() // Devuelve los mar_id recibidos para validación
+            ], 500);
+        }
     }
 }

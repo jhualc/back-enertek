@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Equipo extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'equipo'; 
+    
     protected $fillable = [
     
         "equ_id",
@@ -22,6 +24,6 @@ class Equipo extends Model
         "created_at" ,
         "updated_at" ,
     ];
-
+    protected $primaryKey = 'equ_id';
     protected $dates = ['deleted_at']; 
 }
