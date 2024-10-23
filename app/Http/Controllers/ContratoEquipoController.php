@@ -12,10 +12,11 @@ class ContratoEquipoController extends Controller
     public function index()
     {
         // Obtener todos los registros
-        $contratosEquipos = ContratoEquipo::all();
+        $contratosEquipos = ContratoEquipo::whereNull('deleted_at')->get();
+
         return response()->json([
             'message' => 'Respuesta Ok',
-            'marca' => $contratosEquipos
+            'contrato-equipo' => $contratosEquipos
             ], 201);
        
     }

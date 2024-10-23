@@ -11,11 +11,12 @@ class InformeController extends Controller
      */
     public function index()
     {
-        $informes = Informe::all();
+        $informes = Informe::whereNull('deleted_at')->get();
+
 
         return response()->json([
          'message' => 'Respuesta Ok',
-         'marca' => $informes
+         'informe' => $informes
          ], 201);
     }
 

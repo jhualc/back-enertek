@@ -11,10 +11,11 @@ class OrdenTrabajoController extends Controller
      */
     public function index()
     {
-        $ordenes = OrdenTrabajo::all();
+        $ordenes = OrdenTrabajo::whereNull('deleted_at')->get();
+
         return response()->json([
             'message' => 'Respuesta Ok',
-            'marca' => $ordenes
+            'orden-trabajo' => $ordenes
             ], 201);
     }
 

@@ -11,11 +11,12 @@ class InstalacionController extends Controller
      */
     public function index()
     {
-        $instalaciones = Instalacion::all();
+        $instalaciones = Instalacion::whereNull('deleted_at')->get();
+
 
         return response()->json([
          'message' => 'Respuesta Ok',
-         'marca' => $instalaciones
+         'instalacion' => $instalaciones
          ], 201);
     }
 

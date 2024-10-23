@@ -11,11 +11,12 @@ class OtePersonalController extends Controller
      */
     public function index()
     {
-        $marcas = Marca::all();
+        $marcas = Marca::whereNull('deleted_at')->get();
+
 
         return response()->json([
          'message' => 'Respuesta Ok',
-         'marca' => $marcas
+         'ote-persona' => $marcas
          ], 201);
     }
 

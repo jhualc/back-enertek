@@ -12,10 +12,11 @@ class ClienteController extends Controller
     public function index()
     {
         // Obtener todos los clientes
-        $clientes = Cliente::all();
+        $clientes = Cliente::whereNull('deleted_at')->get();
+
         return response()->json([
             'message' => 'Respuesta Ok',
-            'marca' => $clientes
+            'cliente' => $clientes
             ], 201);
        
     }

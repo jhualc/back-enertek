@@ -11,11 +11,12 @@ class FacturacionController extends Controller
      */
     public function index()
     {
-        $facturacion = Facturacion::all();
+        $facturacion = Facturacion::whereNull('deleted_at')->get();
+
 
         return response()->json([
          'message' => 'Respuesta Ok',
-         'marca' => $facturacion
+         'facturacion' => $facturacion
          ], 201);
     }
 
