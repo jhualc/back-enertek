@@ -17,6 +17,7 @@ class Instalacion extends Model
         "ins_breaker",
         "ins_otro",
         "ins_tablero",
+        "equ_id",
         "created_at" ,
         "updated_at" ,
     ];
