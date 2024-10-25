@@ -20,6 +20,7 @@ class Equipo extends Model
         "mar_id",
         "teq_id",
         "equ_cant_baterias",
+        "equ_qr_code",
         "created_at" ,
         "updated_at" ,
     ];

@@ -36,13 +36,13 @@ class EquipoController extends Controller
     {
         // Validar los datos de entrada
         $validatedData = $request->validate([
-            'equ_id' => 'required',
+            'equ_id' => 'unique:equipo',
             'equ_modelo' => 'required|string|max:255',
             'equ_serial' => 'required|string|max:255',
+            'equ_qr_code' => 'required|string|max:255',
             'mar_id' => 'required',
             'teq_id' => 'required',
-            'equ_cant_baterias' => 'required|integer',
-            'ins_id' => 'required',
+            'equ_cant_baterias' => 'required|integer'
         ]);
 
         // Crear el registro
@@ -82,10 +82,10 @@ class EquipoController extends Controller
             'equ_id' => 'required',
             'equ_modelo' => 'required|string|max:255',
             'equ_serial' => 'required|string|max:255',
+            'equ_qr_code' => 'required|string|max:255',
             'mar_id' => 'required',
             'teq_id' => 'required',
-            'equ_cant_baterias' => 'required|integer',
-            'ins_id' => 'required',
+            'equ_cant_baterias' => 'required|integer'
         ]);
 
         // Encontrar y actualizar el equipo
