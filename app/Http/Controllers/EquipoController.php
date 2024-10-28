@@ -12,12 +12,12 @@ class EquipoController extends Controller
     public function index()
     {
         // Obtener todos los registros de equipo
-        $equipos = Equipo::whereNull('deleted_at')->get();
+        $equipos = Equipo::with(['marca', 'tipoEquipo'])->whereNull('deleted_at')->get();
 
         return response()->json([
             'message' => 'Respuesta Ok',
             'equipo' => $equipos
-            ], 201);
+            ], 200);
       
     }
 

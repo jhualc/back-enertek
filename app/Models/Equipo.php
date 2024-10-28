@@ -26,4 +26,14 @@ class Equipo extends Model
     ];
     protected $primaryKey = 'equ_id';
     protected $dates = ['deleted_at']; 
+
+    public function marca()
+    {
+        return $this->belongsTo(Marca::class, 'mar_id', 'mar_id');
+    }
+
+    public function tipoEquipo()
+    {
+        return $this->belongsTo(TipoEquipo::class, 'teq_id', 'teq_id');
+    }
 }

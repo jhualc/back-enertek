@@ -21,4 +21,10 @@ class TipoEquipo extends Model
     protected $primaryKey = 'teq_id'; 
 
     protected $dates = ['deleted_at']; 
+ 
+    
+    public function equipos()
+    {
+        return $this->hasMany(Equipo::class, 'teq_id', 'teq_id');
+    }
 }
