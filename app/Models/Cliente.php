@@ -18,7 +18,6 @@ class Cliente extends Model
         'cli_nombre',
         'cli_identificacion',
         'cli_tipo_identificacion',
-        'otr_id', 
         "created_at" ,
         "updated_at" ,
     ];

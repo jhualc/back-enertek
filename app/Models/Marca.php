@@ -23,4 +23,9 @@ class Marca extends Model
 
     protected $primaryKey = 'mar_id'; 
     protected $dates = ['deleted_at']; 
+
+    public function equipos()
+    {
+        return $this->hasMany(Equipo::class, 'mar_id', 'mar_id');
+    }
 }

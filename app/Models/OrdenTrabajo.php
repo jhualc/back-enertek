@@ -16,6 +16,7 @@ class OrdenTrabajo extends Model
         "otr_descripcion",
         "otr_valor_cotizado",
         "otr_estado",
+        "cli_id",
         "created_at" ,
         "updated_at" ,
     ];
