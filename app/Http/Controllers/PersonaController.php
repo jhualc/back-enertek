@@ -13,7 +13,7 @@ class PersonaController extends Controller
     }
 
     public function getAllPersona(){
-       $persona = DB::table('persona')->get();
+       $persona = Persona::whereNull('deleted_at')->get();
        return response()->json([
         'message' => 'Respuesta Ok',
         'persona' => $persona
