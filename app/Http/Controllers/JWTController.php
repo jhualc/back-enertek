@@ -19,6 +19,14 @@ class JWTController extends Controller
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
+    public function getAllUsers (Request $request)
+    {
+        $user = User::whereNull('deleted_at')->get();
+        return response()->json([
+         'message' => 'Respuesta Ok',
+         'user' => $user
+         ], 201);
+    }
     /**
      * Register user.
      *

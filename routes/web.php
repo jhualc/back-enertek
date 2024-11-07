@@ -18,3 +18,8 @@ use App\Http\Controllers\User\ProfileUserController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Definir la ruta 'login' para manejar redirecciones de autenticación fallida en API
+Route::get('/login', function () {
+    return response()->json(['message' => 'Unauthenticated. Please log in.'], 401);
+})->name('login');

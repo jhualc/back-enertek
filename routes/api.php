@@ -44,6 +44,7 @@ Route::group(['middleware' => 'api'], function($router){
     Route::post('/logout', [JWTController::class, 'logout']);
     Route::post('/refresh', [JWTController::class, 'refresh']);
     Route::post('/profile', [JWTController::class, 'profile']);
+    Route::get('/users', [JWTController::class, 'getAllUsers']);
     Route::get('/users/contact', [ProfileUserController::class, 'contactUsers']);
     Route::get('/users/sponsors', [ProfileUserController::class, 'contactUserSponsors']);
     Route::get('/getUser/{id}', [ProfileUserController::class, 'getUser']);
@@ -68,6 +69,7 @@ Route::group(['middleware' => 'api'], function($router){
     Route::resource('/baterias-equipo', BateriaEquipoController::class);
     Route::resource('/cliente', ClienteController::class);
     Route::resource('/contrato', ContratoController::class);
+
     Route::delete('/marca/delete-multiple', [MarcaController::class, 'destroyMultiple']);
     Route::delete('/equipos/delete-multiple', [EquipoController::class, 'destroyMultiple']);
     Route::delete('/tipos-equipo/delete-multiple', [TipoEquipoController::class, 'destroyMultiple']);
