@@ -64,6 +64,104 @@ class JWTController extends Controller
         ], 201);
     }
 
+    public function update(Request $request, $id)
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'string|min:6|max:100',
+        'email' => 'string|email|max:100|unique:users,email,' . $id, // Ignorar el email actual
+        'password' => 'nullable|string|min:6',
+        'usr_empresa' => 'string',
+        'usr_cargo' => 'string'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Validation error',
+            'estado' => 400,
+            'error' => $validator->errors()
+        ], 400);
+    }
+
+    $user = User::find($id);
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    $user->name = $request->name ?? $user->name;
+    $user->email = $request->email ?? $user->email;
+    $user->password = $request->password ? Hash::make($request->password) : $user->password;
+    $user->usr_empresa = $request->usr_empresa ?? $user->usr_empresa;
+    $user->usr_cargo = $request->usr_cargo ?? $user->usr_cargo;
+    $user->save();
+
+    return response()->json([
+        'message' => 'User successfully updated',
+        'user' => $user
+    ], 200);
+}
+
+public function delete($id)
+{
+    $user = User::find($id);
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    $user->delete(); // Eliminación lógica si SoftDeletes está habilitado
+    return response()->json(['message' => 'User successfully deleted'], 200);
+}
+
+public function destroyMultiple(Request $request)
+{
+    try {
+        // Registrar los datos recibidos en el log para revisión
+        \Log::info('Datos recibidos: ' . json_encode($request->all()));
+
+        // Validar que cada 'user_id' existe en la tabla 'users'
+        $validatedData = $request->validate([
+            '*.user_id' => 'required|exists:users,id',
+        ]);
+
+        \Log::info('Datos validados: ' . json_encode($validatedData));
+
+        // Obtener solo los IDs de usuario a partir de los datos validados
+        $ids = collect($validatedData)->pluck('user_id')->all();
+
+        \Log::info('Usuarios a eliminar: ' . implode(', ', $ids));
+
+        // Eliminar usuarios (eliminación lógica si SoftDeletes está habilitado)
+        User::whereIn('id', $ids)->delete();
+
+        \Log::info('Usuarios eliminados');
+
+        // Retornar una respuesta exitosa con los IDs eliminados
+        return response()->json([
+            'message' => 'Usuarios eliminados exitosamente',
+            'eliminados' => $ids
+        ], 200);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Manejar errores de validación y devolver detalles
+        return response()->json([
+            'message' => 'Error de validación',
+            'errors' => $e->errors(),
+            'user_id_recibidos' => $request->all()
+        ], 422);
+
+    } catch (\Exception $e) {
+        // Log y manejar cualquier otro error
+        \Log::error('Error al eliminar usuarios: ' . $e->getMessage());
+
+        return response()->json([
+            'message' => 'Ocurrió un error al intentar eliminar los usuarios',
+            'error' => $e->getMessage(),
+            'user_id_recibidos' => $request->all()
+        ], 500);
+    }
+}
+
+
+
     /**
      * login user
      *
