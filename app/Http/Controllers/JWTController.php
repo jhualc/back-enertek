@@ -39,7 +39,8 @@ class JWTController extends Controller
             'email' => 'required|string|email|max:100|unique:users',
             'password' => 'required|string|min:6',
             'usr_empresa' => 'required|string',
-            'usr_cargo' => 'required|string'
+            'usr_cargo' => 'required|string',
+            'usr_perfil' => 'required|string'
         ]);
 
         if($validator->fails()) {
@@ -55,11 +56,12 @@ class JWTController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'usr_empresa' => $request->usr_empresa,
-                'usr_cargo' => $request->usr_cargo
+                'usr_cargo' => $request->usr_cargo,
+                'usr_perfil' => $request->usr_perfil
             ]);
 
         return response()->json([
-            'message' => 'User successfully registered',
+            'message' => 'Usuario registrado exitosamenete',
             'user' => $user
         ], 201);
     }
@@ -71,7 +73,8 @@ class JWTController extends Controller
         'email' => 'string|email|max:100|unique:users,email,' . $id, // Ignorar el email actual
         'password' => 'nullable|string|min:6',
         'usr_empresa' => 'string',
-        'usr_cargo' => 'string'
+        'usr_cargo' => 'string',
+        'usr_perfil' => 'string'
     ]);
 
     if ($validator->fails()) {
@@ -92,10 +95,11 @@ class JWTController extends Controller
     $user->password = $request->password ? Hash::make($request->password) : $user->password;
     $user->usr_empresa = $request->usr_empresa ?? $user->usr_empresa;
     $user->usr_cargo = $request->usr_cargo ?? $user->usr_cargo;
+    $user->usr_perfil = $request->usr_perfil ?? $user->usr_perfil;
     $user->save();
 
     return response()->json([
-        'message' => 'User successfully updated',
+        'message' => 'Usuario actualizado exitosamente',
         'user' => $user
     ], 200);
 }
@@ -104,11 +108,11 @@ public function delete($id)
 {
     $user = User::find($id);
     if (!$user) {
-        return response()->json(['message' => 'User not found'], 404);
+        return response()->json(['message' => 'Usuario no encontrado'], 404);
     }
 
     $user->delete(); // Eliminación lógica si SoftDeletes está habilitado
-    return response()->json(['message' => 'User successfully deleted'], 200);
+    return response()->json(['message' => 'Usuario eliminado exitosamente'], 200);
 }
 
 public function destroyMultiple(Request $request)
@@ -119,13 +123,13 @@ public function destroyMultiple(Request $request)
 
         // Validar que cada 'user_id' existe en la tabla 'users'
         $validatedData = $request->validate([
-            '*.user_id' => 'required|exists:users,id',
+            '*.id' => 'required|exists:users,id',
         ]);
 
         \Log::info('Datos validados: ' . json_encode($validatedData));
 
         // Obtener solo los IDs de usuario a partir de los datos validados
-        $ids = collect($validatedData)->pluck('user_id')->all();
+        $ids = collect($validatedData)->pluck('id')->all();
 
         \Log::info('Usuarios a eliminar: ' . implode(', ', $ids));
 
