@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bateria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class BateriaController extends Controller
 {
@@ -12,7 +13,7 @@ class BateriaController extends Controller
     public function index()
     {
         // Obtener todas las baterías
-        $baterias = Bateriao::with(['bateria'])->whereNull('deleted_at')->get();
+        $baterias = Bateria::whereNull('deleted_at')->get();
 
         return response()->json([
             'message' => 'Respuesta Ok',
