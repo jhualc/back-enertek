@@ -39,7 +39,7 @@ class ClienteController extends Controller
             'cli_nombre' => 'required|string|max:255',
             'cli_identificacion' => 'required|string|max:50|unique:clientes',
             'cli_tipo_identificacion' => 'required|string|max:50',
-            'otr_id' => 'nullable|exists:otras_tablas,otr_id', // Asegúrate de que la tabla relacionada exista
+            
         ]);
 
         // Crear un nuevo cliente
@@ -79,7 +79,7 @@ class ClienteController extends Controller
             'cli_nombre' => 'required|string|max:255',
             'cli_identificacion' => 'required|string|max:50|unique:clientes,cli_identificacion,' . $id . ',cli_id',
             'cli_tipo_identificacion' => 'required|string|max:50',
-            'otr_id' => 'nullable|exists:otras_tablas,otr_id', // Asegúrate de que la tabla relacionada exista
+           
         ]);
 
         // Encontrar y actualizar el cliente

@@ -1,33 +1,30 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Bateria extends Model
+class ClienteSede extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'bateria'; 
+    protected $table = 'cliente'; 
 
-    protected $primaryKey = 'bat_id'; 
+    protected $primaryKey = 'cli_id'; 
 
     protected $fillable = [
-        'bat_id',
-        'bat_modelo',
-        'bat_voltaje',
-        'bat_capacidad',
-        'mar_id',
+        'cls_id',
+        'cli_descripcion',
+        'cls_direccion',
+        'cli_id',
         "created_at" ,
         "updated_at" ,
     ];
     protected $dates = ['deleted_at']; 
 
-
-    public function marca()
+    public function cliente()
     {
-        return $this->belongsTo(Marca::class, 'mar_id');
+        return $this->belongsTo(Cliente::class, 'cli_id');
     }
 }

@@ -30,6 +30,7 @@ class ContratoController extends Controller
     {
         // Validar los datos de entrada
         $validatedData = $request->validate([
+            'con_id' => 'unique:contrato',
             'con_tipo' => 'required|string|max:255',
             'con_valor' => 'required|numeric',
             'con_periodicidad' => 'required|string|max:50',

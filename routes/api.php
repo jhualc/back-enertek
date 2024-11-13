@@ -19,6 +19,7 @@ use App\Http\Controllers\BateriaController;
 use App\Http\Controllers\BateriaEquipoController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ContratoController;
+use App\Http\Controllers\ClienteSedeController;
 
 //Route::resource('clientes', ClienteController::class);
 
@@ -65,12 +66,24 @@ Route::group(['middleware' => 'api'], function($router){
     Route::resource('/equipo', EquipoController::class);
     Route::resource('/marcas', MarcaController::class);
     Route::resource('/tipo-equipo', TipoEquipoController::class);
-    Route::resource('/bateria', BateriaController::class);
+    Route::get('/baterias', [BateriaController::class, 'index']);
+    Route::post('/baterias', [BateriaController::class, 'store']);
+    Route::get('/baterias/{id}', [BateriaController::class, 'show']);
+    Route::put('/baterias/{id}', [BateriaController::class, 'update']);
+    Route::delete('/baterias/{id}', [BateriaController::class, 'destroy']);
+    Route::delete('/baterias/delete-multiple', [BateriaController::class, 'destroyMultiple']);
+
     Route::resource('/baterias-equipo', BateriaEquipoController::class);
     Route::resource('/cliente', ClienteController::class);
     Route::resource('/contrato', ContratoController::class);
     Route::put('/user/{id}', [JWTController::class, 'update']);
     Route::delete('/user/{id}', [JWTController::class, 'delete']);
+    Route::get('/cliente-sedes', [ClienteSedeController::class, 'index']);
+    Route::post('/cliente-sedes', [ClienteSedeController::class, 'store']);
+    Route::get('/cliente-sedes/{id}', [ClienteSedeController::class, 'show']);
+    Route::put('/cliente-sedes/{id}', [ClienteSedeController::class, 'update']);
+    Route::delete('/cliente-sedes/{id}', [ClienteSedeController::class, 'destroy']);
+    Route::delete('/cliente-sedes/delete-multiple', [ClienteSedeController::class, 'destroyMultiple']);
 
     Route::delete('/marca/delete-multiple', [MarcaController::class, 'destroyMultiple']);
     Route::delete('/equipos/delete-multiple', [EquipoController::class, 'destroyMultiple']);

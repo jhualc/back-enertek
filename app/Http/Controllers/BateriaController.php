@@ -12,7 +12,7 @@ class BateriaController extends Controller
     public function index()
     {
         // Obtener todas las baterías
-        $baterias = Bateria::all();
+        $baterias = Bateriao::with(['bateria'])->whereNull('deleted_at')->get();
 
         return response()->json([
             'message' => 'Respuesta Ok',
@@ -25,68 +25,104 @@ class BateriaController extends Controller
      */
     public function store(Request $request)
     {
-        // Validar los datos de entrada
-        $validatedData = $request->validate([
-            'bat_id' => 'required|unique:baterias',
+        $validator = Validator::make($request->all(), [
             'bat_modelo' => 'required|string|max:255',
             'bat_voltaje' => 'required|numeric',
             'bat_capacidad' => 'required|numeric',
-            'mar_id' => 'required|exists:marcas,mar_id', 
+            'mar_id' => 'required|exists:marca,mar_id'
         ]);
 
-        // Crear una nueva batería
-        $bateria = Bateria::create($validatedData);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $bateria = Bateria::create($request->all());
 
         return response()->json([
             'message' => 'Batería creada exitosamente',
-            'data' => $bateria
+            'bateria' => $bateria
         ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar un registro específico de Batería.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        // Mostrar una batería específica
-        $bateria = Bateria::findOrFail($id);
-        return response()->json($bateria);
+        $bateria = Bateria::find($id);
+
+        if (!$bateria || $bateria->deleted_at) {
+            return response()->json(['message' => 'Batería no encontrada'], 404);
+        }
+
+        return response()->json($bateria, 200);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualizar un registro específico de Batería.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        // Validar los datos
-        $validatedData = $request->validate([
-            'bat_modelo' => 'required|string|max:255',
-            'bat_voltaje' => 'required|numeric',
-            'bat_capacidad' => 'required|numeric',
-            'mar_id' => 'required|exists:marcas,mar_id',
+        $validator = Validator::make($request->all(), [
+            'bat_modelo' => 'string|max:255',
+            'bat_voltaje' => 'numeric',
+            'bat_capacidad' => 'numeric',
+            'mar_id' => 'exists:marca,mar_id'
         ]);
 
-        // Encontrar y actualizar la batería
-        $bateria = Bateria::findOrFail($id);
-        $bateria->update($validatedData);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $bateria = Bateria::find($id);
+
+        if (!$bateria || $bateria->deleted_at) {
+            return response()->json(['message' => 'Batería no encontrada'], 404);
+        }
+
+        $bateria->update($request->all());
 
         return response()->json([
             'message' => 'Batería actualizada exitosamente',
-            'data' => $bateria
-        ]);
+            'bateria' => $bateria
+        ], 200);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Eliminar un registro específico de Batería.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        // Encontrar y eliminar la batería
-        $bateria = Bateria::findOrFail($id);
+        $bateria = Bateria::find($id);
+
+        if (!$bateria || $bateria->deleted_at) {
+            return response()->json(['message' => 'Batería no encontrada'], 404);
+        }
+
         $bateria->delete();
 
-        return response()->json([
-            'message' => 'Batería eliminada exitosamente'
+        return response()->json(['message' => 'Batería eliminada exitosamente'], 200);
+    }
+
+    /**
+     * Eliminar múltiples registros de Batería.
+     */
+    public function destroyMultiple(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            '*.bat_id' => 'required|exists:bateria,bat_id',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $ids = collect($request->all())->pluck('bat_id')->all();
+        Bateria::whereIn('bat_id', $ids)->delete();
+
+        return response()->json([
+            'message' => 'Baterías eliminadas exitosamente',
+            'eliminadas' => $ids
+        ], 200);
     }
 }
