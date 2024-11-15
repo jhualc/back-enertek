@@ -23,5 +23,15 @@ class BateriaEquipo extends Model
     ];
 
     protected $dates = ['deleted_at']; 
+
+    public function equipo()
+    {
+        return $this->belongsTo(Equipo::class, 'equ_id');
+    }
+
+    public function bateria()
+    {
+        return $this->belongsTo(Bateria::class, 'bat_id');
+    }
     
 }
