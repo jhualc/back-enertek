@@ -40,6 +40,7 @@ class EquipoController extends Controller
             'equ_modelo' => 'required|string|max:255',
             'equ_serial' => 'required|string|max:255',
             'equ_qr_code' => 'required|string|max:255',
+            'equ_potencia' => 'string|max:255',
             'mar_id' => 'required',
             'teq_id' => 'required',
             'equ_cant_baterias' => 'required|integer'
@@ -83,6 +84,7 @@ class EquipoController extends Controller
             'equ_modelo' => 'required|string|max:255',
             'equ_serial' => 'required|string|max:255',
             'equ_qr_code' => 'required|string|max:255',
+            'equ_potencia' => 'string|max:255',
             'mar_id' => 'required',
             'teq_id' => 'required',
             'equ_cant_baterias' => 'required|integer'

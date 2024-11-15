@@ -11,8 +11,7 @@ class Cliente extends Model
 
     protected $table = 'cliente'; 
 
-    protected $primaryKey = 'cli_id'; 
-
+    
     protected $fillable = [
         'cli_id',
         'cli_nombre',
@@ -21,5 +20,8 @@ class Cliente extends Model
         "created_at" ,
         "updated_at" ,
     ];
+
+    protected $primaryKey = 'cli_id'; 
+
     protected $dates = ['deleted_at']; 
 }

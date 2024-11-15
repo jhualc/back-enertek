@@ -21,19 +21,23 @@ class Equipo extends Model
         "teq_id",
         "equ_cant_baterias",
         "equ_qr_code",
+        "equ_potencia",
         "created_at" ,
         "updated_at" ,
     ];
     protected $primaryKey = 'equ_id';
     protected $dates = ['deleted_at']; 
 
+
+
     public function marca()
     {
-        return $this->belongsTo(Marca::class, 'mar_id', 'mar_id');
+        return $this->belongsTo(Marca::class, 'mar_id');
     }
+
 
     public function tipoEquipo()
     {
-        return $this->belongsTo(TipoEquipo::class, 'teq_id', 'teq_id');
+        return $this->belongsTo(TipoEquipo::class, 'teq_id');
     }
 }

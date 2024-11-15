@@ -19,7 +19,7 @@ use App\Http\Controllers\BateriaController;
 use App\Http\Controllers\BateriaEquipoController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ContratoController;
-use App\Http\Controllers\ClienteSedeController;
+use App\Http\Controllers\SedeClienteController;
 
 //Route::resource('clientes', ClienteController::class);
 
@@ -78,12 +78,12 @@ Route::group(['middleware' => 'api'], function($router){
     Route::resource('/contrato', ContratoController::class);
     Route::put('/user/{id}', [JWTController::class, 'update']);
     Route::delete('/user/{id}', [JWTController::class, 'delete']);
-    Route::get('/cliente-sedes', [ClienteSedeController::class, 'index']);
-    Route::post('/cliente-sedes', [ClienteSedeController::class, 'store']);
-    Route::get('/cliente-sedes/{id}', [ClienteSedeController::class, 'show']);
-    Route::put('/cliente-sedes/{id}', [ClienteSedeController::class, 'update']);
-    Route::delete('/cliente-sedes/{id}', [ClienteSedeController::class, 'destroy']);
-    Route::delete('/cliente-sedes/delete-multiple', [ClienteSedeController::class, 'destroyMultiple']);
+    Route::get('/cliente-sedes', [SedeClienteController::class, 'index']);
+    Route::post('/cliente-sedes', [SedeClienteController::class, 'store']);
+    Route::get('/cliente-sedes/{id}', [SedeClienteController::class, 'show']);
+    Route::put('/cliente-sedes/{id}', [SedeClienteController::class, 'update']);
+    Route::delete('/cliente-sedes/{id}', [SedeClienteController::class, 'destroy']);
+    Route::delete('/cliente-sedes/delete-multiple', [SedeClienteController::class, 'destroyMultiple']);
 
     Route::delete('/marca/delete-multiple', [MarcaController::class, 'destroyMultiple']);
     Route::delete('/equipos/delete-multiple', [EquipoController::class, 'destroyMultiple']);

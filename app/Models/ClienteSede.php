@@ -9,13 +9,13 @@ class ClienteSede extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'cliente'; 
+    protected $table = 'cliente_sedes'; 
 
-    protected $primaryKey = 'cli_id'; 
+    protected $primaryKey = 'cls_id'; 
 
     protected $fillable = [
         'cls_id',
-        'cli_descripcion',
+        'cls_descripcion',
         'cls_direccion',
         'cli_id',
         "created_at" ,
