@@ -13,7 +13,7 @@ class BateriaController extends Controller
     public function index()
     {
         // Obtener todas las baterías
-        $baterias = Bateria::whereNull('deleted_at')->get();
+        $baterias = Bateria::with(['marca'])->whereNull('deleted_at')->get();
 
         return response()->json([
             'message' => 'Respuesta Ok',
