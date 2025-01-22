@@ -80,4 +80,27 @@ class ClienteController extends Controller
             'message' => 'Cliente eliminado exitosamente'
         ]);
     }
+
+    
+    /**
+     * Eliminar múltiples registros de Batería.
+     */
+    public function destroyMultiple(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            '*.cli_id' => 'required|exists:cliente,cli_id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $ids = collect($request->all())->pluck('cli_id')->all();
+        Bateria::whereIn('cli_id', $ids)->delete();
+
+        return response()->json([
+            'message' => 'Clientes eliminados exitosamente',
+            'eliminadas' => $ids
+        ], 200);
+    }
 }
