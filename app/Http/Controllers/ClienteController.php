@@ -96,7 +96,7 @@ class ClienteController extends Controller
         }
 
         $ids = collect($request->all())->pluck('cli_id')->all();
-        Bateria::whereIn('cli_id', $ids)->delete();
+        Cliente::whereIn('cli_id', $ids)->delete();
 
         return response()->json([
             'message' => 'Clientes eliminados exitosamente',

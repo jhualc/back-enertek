@@ -75,7 +75,7 @@ Route::group(['middleware' => 'api'], function($router){
 
     Route::resource('/baterias-equipo', BateriaEquipoController::class);
     Route::resource('/cliente', ClienteController::class);
-    Route::resource('/clientes/delete-multiple', ClienteController::class, 'destroyMultiple');
+    Route::delete('/clientes/delete-multiple', [ClienteController::class, 'destroyMultiple']);
 
     Route::resource('/contrato', ContratoController::class);
     Route::put('/user/{id}', [JWTController::class, 'update']);
