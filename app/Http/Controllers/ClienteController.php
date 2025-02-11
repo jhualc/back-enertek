@@ -13,11 +13,11 @@ class ClienteController extends Controller
      */
     public function index()
     {
-        $clientes = Cliente::whereNull('deleted_at')->get();
+        $cliente = Cliente::whereNull('deleted_at')->get();
 
         return response()->json([
             'message' => 'Respuesta Ok',
-            'cliente' => $clientes
+            'cliente' => $cliente
         ], 200);
     }
 
@@ -25,20 +25,23 @@ class ClienteController extends Controller
      * Almacena un nuevo cliente en la base de datos.
      */
     public function store(Request $request)
-    {
-        $validatedData = $request->validate([
-            'cli_nombre' => 'required|string|max:255',
-            'cli_identificacion' => 'required|string|max:50|unique:cliente,cli_identificacion',
-            'cli_tipo_identificacion' => 'required|string|max:50',
-        ]);
+{
+    \Log::info('Request recibido en store:', $request->all());
 
-        $cliente = Cliente::create($validatedData);
+    $validatedData = $request->validate([
+        'cli_nombre' => 'required|string|max:255',
+        'cli_identificacion' => 'required|string|max:50|unique:cliente,cli_identificacion',
+        'cli_tipo_identificacion' => 'required|string|max:50',
+    ]);
 
-        return response()->json([
-            'message' => 'Cliente creado exitosamente',
-            'data' => $cliente
-        ], 201);
-    }
+    $cliente = Cliente::create($validatedData);
+
+    return response()->json([
+        'message' => 'Cliente creado exitosamente',
+        'data' => $cliente
+    ], 201);
+}
+
 
     /**
      * Muestra un cliente específico.
@@ -84,7 +87,7 @@ class ClienteController extends Controller
 
     
     /**
-     * Eliminar múltiples registros de Batería.
+     * Eliminar múltiples registros de CLiente.
      */
     public function destroyMultiple(Request $request)
     {

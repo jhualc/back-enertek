@@ -20,6 +20,8 @@ use App\Http\Controllers\BateriaEquipoController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ContratoController;
 use App\Http\Controllers\SedeClienteController;
+use App\Http\Controllers\ExcelImportController;
+use App\Http\Controllers\ClienteEquipoImportController;
 
 //Route::resource('clientes', ClienteController::class);
 
@@ -63,6 +65,7 @@ Route::group(['middleware' => 'api'], function($router){
     Route::post('/personaDataAuthorization',  [ProfileUserController::class, 'setUserAuthorizationPersonalData']);
     //Route::apiResource('/ordenes-trabajo', OrdenTrabajoController::class);
     Route::resource('/contrato-equipo', ContratoEquipoController::class);
+    Route::delete('/contrato-equipos/delete-multiple', [ContratoEquipoController::class, 'destroyMultiple']);
     Route::resource('/equipo', EquipoController::class);
     Route::resource('/marcas', MarcaController::class);
     Route::resource('/tipo-equipo', TipoEquipoController::class);
@@ -75,9 +78,10 @@ Route::group(['middleware' => 'api'], function($router){
 
     Route::resource('/baterias-equipo', BateriaEquipoController::class);
     Route::resource('/cliente', ClienteController::class);
-    Route::delete('/clientes/delete-multiple', [ClienteController::class, 'destroyMultiple']);
+    Route::delete('/cliente/delete-multiple', [ClienteController::class, 'destroyMultiple']);
 
     Route::resource('/contrato', ContratoController::class);
+    Route::delete('/contrato/destroy-multiple', [ContratoController::class, 'destroyMultiple']);
     Route::put('/user/{id}', [JWTController::class, 'update']);
     Route::delete('/user/{id}', [JWTController::class, 'delete']);
     Route::get('/cliente-sedes', [SedeClienteController::class, 'index']);
@@ -91,6 +95,9 @@ Route::group(['middleware' => 'api'], function($router){
     Route::delete('/equipos/delete-multiple', [EquipoController::class, 'destroyMultiple']);
     Route::delete('/tipos-equipo/delete-multiple', [TipoEquipoController::class, 'destroyMultiple']);
     Route::delete('/users/delete-multiple', [JWTController::class, 'destroyMultiple']);
+
+    Route::post('/upload-excel', [ExcelImportController::class, 'uploadExcel']);
+    Route::post('/upload-clienteequipo', [ClienteEquipoImportController::class, 'uploadExcel']);
     
 
 
