@@ -35,7 +35,7 @@ class ContratoController extends Controller
             'con_valor' => 'required|numeric',
             'con_periodicidad' => 'required|string|max:50',
             'con_estado' => 'required|string|max:50',
-            'cli_id' => 'required|exists:clientes,cli_id', 
+            'cli_id' => 'required|exists:cliente,cli_id', 
         ]);
 
         // Crear un nuevo contrato
@@ -68,7 +68,7 @@ class ContratoController extends Controller
             'con_valor' => 'required|numeric',
             'con_periodicidad' => 'required|string|max:50',
             'con_estado' => 'required|string|max:50',
-            'cli_id' => 'required|exists:clientes,cli_id',
+            'cli_id' => 'required|exists:cliente,cli_id',
         ]);
 
         // Encontrar y actualizar el contrato
@@ -93,5 +93,27 @@ class ContratoController extends Controller
         return response()->json([
             'message' => 'Contrato eliminado exitosamente'
         ]);
+    }
+
+      /**
+     * Eliminar múltiples registros de Contrato equipo.
+     */
+    public function destroyMultiple(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            '*.con_id' => 'required|exists:contrato,con_id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $ids = collect($request->all())->pluck('con_id')->all();
+        Contrato::whereIn('con_id', $ids)->delete();
+
+        return response()->json([
+            'message' => 'Contratos eliminados exitosamente',
+            'eliminadas' => $ids
+        ], 200);
     }
 }

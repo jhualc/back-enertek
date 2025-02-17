@@ -43,7 +43,8 @@ class EquipoController extends Controller
             'equ_potencia' => 'string|max:255',
             'mar_id' => 'required',
             'teq_id' => 'required',
-            'equ_cant_baterias' => 'required|integer'
+            'equ_cant_baterias' => 'required|integer',
+            'equ_ubicacion' => 'string|max:255'
         ]);
 
         // Crear el registro

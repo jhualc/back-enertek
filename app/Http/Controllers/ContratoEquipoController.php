@@ -37,10 +37,10 @@ class ContratoEquipoController extends Controller
         // Validar los datos
         $validatedData = $request->validate([
             'coe_id' => 'required',
-            'equi_id' => 'required',
+            'equ_id' => 'required',
             'con_id' => 'required',
             'coe_periodicidad' => 'required',
-            'cli_id' => 'required',
+ 
         ]);
 
         // Crear nuevo registro
@@ -78,10 +78,10 @@ class ContratoEquipoController extends Controller
         // Validar los datos
         $validatedData = $request->validate([
             'coe_id' => 'required',
-            'equi_id' => 'required',
+            'equ_id' => 'required',
             'con_id' => 'required',
             'coe_periodicidad' => 'required',
-            'cli_id' => 'required',
+
         ]);
 
         // Encontrar y actualizar el registro
@@ -106,5 +106,27 @@ class ContratoEquipoController extends Controller
         return response()->json([
             'message' => 'Contrato Equipo eliminado exitosamente'
         ]);
+    }
+
+      /**
+     * Eliminar múltiples registros de Contrato equipo.
+     */
+    public function destroyMultiple(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            '*.coe_id' => 'required|exists:contratoEquipo,coe_id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $ids = collect($request->all())->pluck('coe_id')->all();
+        ContratoEquipo::whereIn('coe_id', $ids)->delete();
+
+        return response()->json([
+            'message' => 'Relaciones contrato Equipo eliminadas exitosamente',
+            'eliminadas' => $ids
+        ], 200);
     }
 }

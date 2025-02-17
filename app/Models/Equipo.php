@@ -22,6 +22,7 @@ class Equipo extends Model
         "equ_cant_baterias",
         "equ_qr_code",
         "equ_potencia",
+        "equ_ubicacion",
         "created_at" ,
         "updated_at" ,
     ];

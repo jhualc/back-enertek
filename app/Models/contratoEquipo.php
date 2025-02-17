@@ -14,10 +14,9 @@ class contratoEquipo extends Model
     protected $fillable = [
     
         "coe_id",
-        "equi_id",
+        "equ_id",
         "con_id",
         "coe_periodicidad",
-        "cli_id",
         "created_at" ,
         "updated_at" ,
     ];
