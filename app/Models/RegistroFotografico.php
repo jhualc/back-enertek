@@ -9,15 +9,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class RegistroFotografico extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $table = 'registro_fotografico';
+    protected $primaryKey = 'ref_id';
+
     protected $fillable = [
-    
-        "ref_id",
         "ref_ubicacion",
         "ins_id",
-        "ote_id",
+        "otr_id",
         "ref_fecha",
-        "created_at" ,
-        "updated_at" ,
     ];
     protected $dates = ['deleted_at']; 
 }

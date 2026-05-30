@@ -1,4 +1,9 @@
-{
+C:\Users\julia\OneDrive\Documentos\ENERTEK\BACKEND\back-enertek>php artisan serve
+PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.34. in C:\Users\julia\OneDrive\Documentos\ENERTEK\BACKEND\back-enertek\vendor\composer\platform_check.php on line 28
+
+Fatal error: Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.34. in C:\Users\julia\OneDrive\Documentos\ENERTEK\BACKEND\back-enertek\vendor\composer\platform_check.php on line 28
+
+C:\Users\julia\OneDrive\Documentos\ENERTEK\BACKEND\back-enertek>{
     "private": true,
     "scripts": {
         "dev": "vite",
