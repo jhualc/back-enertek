@@ -48,7 +48,7 @@ class JWTController extends Controller
                 'message' => 'User error',
                 'estado' => 400,
                 'error' => $validator -> errors()
-            ], 201);
+            ], 400);
         }
 
         $user = User::create([

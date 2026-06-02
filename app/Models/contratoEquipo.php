@@ -11,14 +11,12 @@ class contratoEquipo extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'contrato_equipo'; 
+
+    protected $primaryKey = 'coe_id'; // Explicitly set primary key
     protected $fillable = [
-    
-        "coe_id",
         "equ_id",
         "con_id",
         "coe_periodicidad",
-        "created_at" ,
-        "updated_at" ,
     ];
 
     protected $dates = ['deleted_at']; 

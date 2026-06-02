@@ -17,8 +17,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('usr_empresa')->nullable();
+            $table->string('usr_cargo')->nullable();
+            $table->string('usr_perfil')->nullable();
+            $table->string('usr_avatar')->nullable();
+            $table->json('usr_datos_personales')->nullable(); // Assuming JSON for flexible data
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

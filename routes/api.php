@@ -22,6 +22,10 @@ use App\Http\Controllers\ContratoController;
 use App\Http\Controllers\SedeClienteController;
 use App\Http\Controllers\ExcelImportController;
 use App\Http\Controllers\ClienteEquipoImportController;
+use App\Http\Controllers\ClienteFullImportController;
+use App\Http\Controllers\ClientFullImportController;
+use App\Http\Controllers\ExcelImportProcessorController;
+use App\Http\Controllers\StagingToClientController;
 
 //Route::resource('clientes', ClienteController::class);
 
@@ -98,6 +102,11 @@ Route::group(['middleware' => 'api'], function($router){
 
     Route::post('/upload-excel', [ExcelImportController::class, 'uploadExcel']);
     Route::post('/upload-clienteequipo', [ClienteEquipoImportController::class, 'uploadExcel']);
+    Route::post('/upload-cliente-full', [ClientFullImportController::class, 'uploadExcel']);
+    Route::post('/import-process-batch', [ExcelImportProcessorController::class, 'processBatch']);
+    Route::post('/import-migrate-clients', [StagingToClientController::class, 'migrateClients']);
+    Route::get('/import-batch-status', [ExcelImportProcessorController::class, 'getBatchStatus']);
+    Route::get('/import-batch-errors', [ExcelImportProcessorController::class, 'getErrors']);
     
 
 

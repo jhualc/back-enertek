@@ -10,14 +10,10 @@ class OtePersonal extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'ote-personal'; 
+    protected $table = 'ote_personal'; 
     protected $fillable = [
-    
-        "otp_id",
         "per_id",
-        "ote_id",
-        "created_at" ,
-        "updated_at" ,
+        "otr_id",
     ];
 
     protected $dates = ['deleted_at']; 

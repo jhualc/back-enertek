@@ -13,12 +13,7 @@ class Marca extends Model
     protected $table = 'marca'; 
 
     protected $fillable = [
-        'mar_id',
         'mar_descripcion',
-        "created_at" ,
-        "updated_at" ,
-        "created_at" ,
-        "updated_at" ,
     ];
 
     protected $primaryKey = 'mar_id'; 

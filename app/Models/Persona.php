@@ -4,12 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 
 class Persona extends Model
 {
     use HasFactory, SoftDeletes;
+    
+    protected $table = 'persona';
+    
+    protected $primaryKey = 'per_id';
+    
     protected $fillable = [
     
         "per_id",
