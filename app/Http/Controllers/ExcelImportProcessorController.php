@@ -72,7 +72,7 @@ class ExcelImportProcessorController extends Controller
 
     private function processStagingRecord($record)
     {
-        $identificacion = $record->col_05_identificacion;
+        $identificacion = $record->eis_identificacion;
 
         if (!$identificacion) {
             throw new \Exception("Identificación de cliente requerida");
@@ -82,22 +82,22 @@ class ExcelImportProcessorController extends Controller
         $cliente = Cliente::firstOrCreate(
             ['cli_identificacion' => $identificacion],
             [
-                'cli_nombre' => $record->col_03_nombre_empresa_persona,
-                'cli_tipo_identificacion' => $record->col_04_tipo_identificacion,
+                'cli_nombre' => $record->eis_nombre_empresa_persona,
+                'cli_tipo_identificacion' => $record->eis_tipo_identificacion,
                 'created_at' => now(),
                 'updated_at' => now()
             ]
         );
 
         // 2. Crear ClienteSede si existe sede y dirección
-        if ($record->col_10_sede && $record->col_09_direccion) {
+        if ($record->eis_sede && $record->eis_direccion) {
             ClienteSede::firstOrCreate(
                 [
                     'cli_id' => $cliente->cli_id,
-                    'cls_descripcion' => $record->col_10_sede
+                    'cls_descripcion' => $record->eis_sede
                 ],
                 [
-                    'cls_direccion' => $record->col_09_direccion,
+                    'cls_direccion' => $record->eis_direccion,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
@@ -105,13 +105,13 @@ class ExcelImportProcessorController extends Controller
         }
 
         // 3. Crear Personas (contactos)
-        if ($record->col_12_nombre_contacto_1 && $record->col_13_correo_contacto_1) {
+        if ($record->eis_nombre_contacto_1 && $record->eis_correo_contacto_1) {
             Persona::firstOrCreate(
-                ['per_correo' => $record->col_13_correo_contacto_1],
+                ['per_correo' => $record->eis_correo_contacto_1],
                 [
-                    'per_nombre' => $record->col_12_nombre_contacto_1,
+                    'per_nombre' => $record->eis_nombre_contacto_1,
                     'per_cargo' => 'Contacto',
-                    'per_empresa' => $record->col_03_nombre_empresa_persona,
+                    'per_empresa' => $record->eis_nombre_empresa_persona,
                     'per_tipo_persona' => 'Cliente',
                     'created_at' => now(),
                     'updated_at' => now()
@@ -119,13 +119,13 @@ class ExcelImportProcessorController extends Controller
             );
         }
 
-        if ($record->col_15_nombre_contacto_2 && $record->col_16_correo_contacto_2) {
+        if ($record->eis_nombre_contacto_2 && $record->eis_correo_contacto_2) {
             Persona::firstOrCreate(
-                ['per_correo' => $record->col_16_correo_contacto_2],
+                ['per_correo' => $record->eis_correo_contacto_2],
                 [
-                    'per_nombre' => $record->col_15_nombre_contacto_2,
+                    'per_nombre' => $record->eis_nombre_contacto_2,
                     'per_cargo' => 'Contacto',
-                    'per_empresa' => $record->col_03_nombre_empresa_persona,
+                    'per_empresa' => $record->eis_nombre_empresa_persona,
                     'per_tipo_persona' => 'Cliente',
                     'created_at' => now(),
                     'updated_at' => now()
@@ -135,9 +135,9 @@ class ExcelImportProcessorController extends Controller
 
         // 4. Crear Marca equipo si no existe
         $marIdEquipo = null;
-        if ($record->col_20_marca_equipo) {
+        if ($record->eis_marca_equipo) {
             $marcaEquipo = Marca::firstOrCreate(
-                ['mar_descripcion' => $record->col_20_marca_equipo],
+                ['mar_descripcion' => $record->eis_marca_equipo],
                 ['created_at' => now(), 'updated_at' => now()]
             );
             $marIdEquipo = $marcaEquipo->mar_id;
@@ -151,13 +151,13 @@ class ExcelImportProcessorController extends Controller
         $teqId = $tipoEquipo->teq_id;
 
         // 6. Crear Equipo si existe modelo y serial
-        if ($record->col_21_modelo_equipo && $record->col_23_serial_equipo) {
+        if ($record->eis_modelo_equipo && $record->eis_serial_equipo) {
             $equipo = Equipo::create([
-                'equ_modelo' => $record->col_21_modelo_equipo,
-                'equ_serial' => $record->col_23_serial_equipo,
-                'equ_potencia' => $record->col_22_potencia_kva,
-                'equ_ubicacion' => $record->col_11_ubicacion_equipo,
-                'equ_cant_baterias' => ($record->col_24_cantidad_baterias_int ?? 0) + ($record->col_25_cantidad_baterias_ext ?? 0),
+                'equ_modelo' => $record->eis_modelo_equipo,
+                'equ_serial' => $record->eis_serial_equipo,
+                'equ_potencia' => $record->eis_potencia_kva,
+                'equ_ubicacion' => $record->eis_ubicacion_equipo,
+                'equ_cant_baterias' => ($record->eis_cantidad_baterias_int ?? 0) + ($record->eis_cantidad_baterias_ext ?? 0),
                 'mar_id' => $marIdEquipo,
                 'teq_id' => $teqId,
                 'created_at' => now(),
@@ -173,16 +173,16 @@ class ExcelImportProcessorController extends Controller
             ]);
 
             // 8. Crear Batería si existen marca y voltaje
-            if ($record->col_26_marca_bateria && $record->col_28_voltaje_bateria) {
+            if ($record->eis_marca_bateria && $record->eis_voltaje_bateria) {
                 $marcaBateria = Marca::firstOrCreate(
-                    ['mar_descripcion' => $record->col_26_marca_bateria],
+                    ['mar_descripcion' => $record->eis_marca_bateria],
                     ['created_at' => now(), 'updated_at' => now()]
                 );
 
                 $bateria = Bateria::create([
-                    'bat_modelo' => $record->col_27_referencia_bateria ?? 'N/A',
-                    'bat_voltaje' => $record->col_28_voltaje_bateria,
-                    'bat_capacidad' => $record->col_29_amperaje_bateria,
+                    'bat_modelo' => $record->eis_referencia_bateria ?? 'N/A',
+                    'bat_voltaje' => $record->eis_voltaje_bateria,
+                    'bat_capacidad' => $record->eis_amperaje_bateria,
                     'mar_id' => $marcaBateria->mar_id,
                     'created_at' => now(),
                     'updated_at' => now()
@@ -210,7 +210,7 @@ class ExcelImportProcessorController extends Controller
 
         $errors = ExcelImportStaging::where('import_batch_id', $batchId)
             ->where('import_status', 'error')
-            ->select('id', 'col_03_nombre_empresa_persona', 'col_05_identificacion', 'import_error')
+            ->select('id', 'eis_nombre_empresa_persona', 'eis_identificacion', 'import_error')
             ->get();
 
         return response()->json([
