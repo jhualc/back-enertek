@@ -12,6 +12,10 @@ return new class extends Migration
             $table->id('cls_id');
             $table->string('cls_descripcion');
             $table->string('cls_direccion')->nullable();
+            $table->string('cls_ciudad')->nullable();
+            $table->string('cls_departamento')->nullable();
+            $table->string('cls_telefono')->nullable();
+            $table->string('cls_correo')->nullable();
             $table->unsignedBigInteger('cli_id'); // Foreign key to cliente
             $table->timestamps();
             $table->softDeletes();
