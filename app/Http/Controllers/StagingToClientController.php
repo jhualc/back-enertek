@@ -52,7 +52,32 @@ class StagingToClientController extends Controller
                         ]
                     );
 
-                    // 2. Marcar el registro como procesado en la tabla staging
+                    $clienteId = DB::table('cliente')
+                        ->where('cli_identificacion', $record->eis_identificacion)
+                        ->value('cli_id');
+
+                    if (!$clienteId) {
+                        throw new \Exception('No se pudo obtener el cliente insertado/actualizado.');
+                    }
+
+                    // 2. Insertar o actualizar la sede del cliente con datos de staging
+                    DB::table('cliente_sedes')->updateOrInsert(
+                        [
+                            'cli_id' => $clienteId,
+                            'cls_descripcion' => $record->eis_sede ?? 'Sede principal',
+                        ],
+                        [
+                            'cls_direccion' => $record->eis_direccion,
+                            'cls_departamento' => $record->eis_departamento,
+                            'cls_ciudad' => $record->eis_ciudad,
+                            'cls_telefono' => $record->eis_telefono_contacto_2 ?? $record->eis_telefono_contacto_2,
+                            'cls_correo' => $record->eis_correo_contacto_2 ?? $record->eis_correo_contacto_2,
+                            'updated_at' => now(),
+                            'created_at' => now(),
+                        ]
+                    );
+
+                    // 3. Marcar el registro como procesado en la tabla staging
                     DB::table('excel_import_staging')
                         ->where('id', $record->id)
                         ->update([
