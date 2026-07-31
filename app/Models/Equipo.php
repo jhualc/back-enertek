@@ -13,12 +13,12 @@ class Equipo extends Model
     protected $table = 'equipo'; 
     
     protected $fillable = [
-    
         "equ_id",
         "equ_modelo",
         "equ_serial",
         "mar_id",
         "teq_id",
+        "cls_id",
         "equ_cant_baterias",
         "equ_qr_code",
         "equ_potencia",
@@ -40,5 +40,10 @@ class Equipo extends Model
     public function tipoEquipo()
     {
         return $this->belongsTo(TipoEquipo::class, 'teq_id');
+    }
+
+    public function sede()
+    {
+        return $this->belongsTo(ClienteSede::class, 'cls_id', 'cls_id');
     }
 }

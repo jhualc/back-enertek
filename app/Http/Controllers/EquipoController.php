@@ -9,16 +9,28 @@ class EquipoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Obtener todos los registros de equipo
-        $equipos = Equipo::with(['marca', 'tipoEquipo'])->whereNull('deleted_at')->get();
+        
+        $validatedData = $request->validate([
+            'cls_id' => 'nullable|integer|exists:cliente_sedes,cls_id'
+        ]);
+
+        $query = Equipo::with(['marca', 'tipoEquipo', 'sede'])->whereNull('deleted_at');
+
+        if (!empty($validatedData['cls_id'])) {
+            $query->where('cls_id', $validatedData['cls_id']);
+        }
+
+        $equipos = $query->get();
 
         return response()->json([
             'message' => 'Respuesta Ok',
-            'equipo' => $equipos
-            ], 200);
-      
+            'equipo' => $equipos,
+            'filters' => [
+                'cls_id' => $validatedData['cls_id'] ?? null
+            ]
+        ], 200);
     }
 
     /**

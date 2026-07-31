@@ -89,9 +89,11 @@ class ExcelImportProcessorController extends Controller
             ]
         );
 
+        $clienteSede = null;
+
         // 2. Crear ClienteSede si existe sede y dirección
         if ($record->eis_sede && $record->eis_direccion) {
-            ClienteSede::firstOrCreate(
+            $clienteSede = ClienteSede::firstOrCreate(
                 [
                     'cli_id' => $cliente->cli_id,
                     'cls_descripcion' => $record->eis_sede
@@ -160,6 +162,7 @@ class ExcelImportProcessorController extends Controller
                 'equ_cant_baterias' => ($record->eis_cantidad_baterias_int ?? 0) + ($record->eis_cantidad_baterias_ext ?? 0),
                 'mar_id' => $marIdEquipo,
                 'teq_id' => $teqId,
+                'cls_id' => $clienteSede?->cls_id,
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
@@ -173,29 +176,48 @@ class ExcelImportProcessorController extends Controller
             ]);
 
             // 8. Crear Batería si existen marca y voltaje
-            if ($record->eis_marca_bateria && $record->eis_voltaje_bateria) {
+            if ($record->eis_marca_bateria && $record->eis_referencia_bateria && $record->eis_voltaje_bateria && $record->eis_amperaje_bateria) {
+                $batMarca = trim((string) $record->eis_marca_bateria);
+                $batModelo = trim((string) $record->eis_referencia_bateria);
+                $batVoltaje = trim((string) $record->eis_voltaje_bateria);
+                $batCapacidad = trim((string) $record->eis_amperaje_bateria);
+
                 $marcaBateria = Marca::firstOrCreate(
-                    ['mar_descripcion' => $record->eis_marca_bateria],
+                    ['mar_descripcion' => $batMarca],
                     ['created_at' => now(), 'updated_at' => now()]
                 );
+                $batMarcaId = $marcaBateria->mar_id;
 
-                $bateria = Bateria::create([
-                    'bat_modelo' => $record->eis_referencia_bateria ?? 'N/A',
-                    'bat_voltaje' => $record->eis_voltaje_bateria,
-                    'bat_capacidad' => $record->eis_amperaje_bateria,
-                    'mar_id' => $marcaBateria->mar_id,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
+                $bateria = Bateria::where('mar_id', $batMarcaId)
+                    ->where('bat_modelo', $batModelo)
+                    ->where('bat_voltaje', $batVoltaje)
+                    ->where('bat_capacidad', $batCapacidad)
+                    ->first();
 
-                // 9. Crear relación Batería-Equipo
-                BateriaEquipo::create([
-                    'equ_id' => $equipo->equ_id,
-                    'bat_id' => $bateria->bat_id,
-                    'beq_fecha' => now()->toDateString(),
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
+                if (!$bateria) {
+                    $bateria = Bateria::create([
+                        'bat_modelo' => $batModelo,
+                        'bat_voltaje' => $batVoltaje,
+                        'bat_capacidad' => $batCapacidad,
+                        'mar_id' => $batMarcaId,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+
+                $existingRelation = BateriaEquipo::where('equ_id', $equipo->equ_id)
+                    ->where('bat_id', $bateria->bat_id)
+                    ->exists();
+
+                if (!$existingRelation) {
+                    BateriaEquipo::create([
+                        'equ_id' => $equipo->equ_id,
+                        'bat_id' => $bateria->bat_id,
+                        'beq_fecha' => now()->toDateString(),
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
             }
         }
     }

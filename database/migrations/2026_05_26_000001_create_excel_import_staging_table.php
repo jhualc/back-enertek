@@ -17,6 +17,7 @@ return new class extends Migration
             // Columna 0-2: Datos generales empresa
             $table->string('eis_sector_empresa')->nullable();
             $table->string('eis_tipo_cliente')->nullable();
+            $table->string('eis_tipo_equipo')->nullable();
             $table->string('eis_sigla')->nullable();
             
             // Columna 3-11: Cliente y Sede
