@@ -10,14 +10,26 @@ class SedeClienteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Obtener todas las sedes de clientes
-        $clienteSedes = ClienteSede::with('cliente')->whereNull('deleted_at')->get();
+        $validatedData = $request->validate([
+            'cli_id' => 'nullable|integer|exists:cliente,cli_id'
+        ]);
+
+        $query = ClienteSede::with('cliente')->whereNull('deleted_at');
+
+        if (!empty($validatedData['cli_id'])) {
+            $query->where('cli_id', $validatedData['cli_id']);
+        }
+
+        $clienteSedes = $query->get();
 
         return response()->json([
             'message' => 'Sedes de clientes obtenidas exitosamente',
-            'data' => $clienteSedes
+            'data' => $clienteSedes,
+            'filters' => [
+                'cli_id' => $validatedData['cli_id'] ?? null
+            ]
         ], 200);
     }
 

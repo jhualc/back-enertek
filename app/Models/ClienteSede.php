@@ -16,6 +16,7 @@ class ClienteSede extends Model
     protected $fillable = [
         'cls_id',
         'cls_descripcion',
+        'cls_ubicacion',
         'cls_direccion',
         'cls_ciudad',
         'cls_departamento',

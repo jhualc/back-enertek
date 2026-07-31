@@ -18,6 +18,7 @@ class ExcelImportStaging extends Model
         'eis_sector_empresa',
         'eis_tipo_cliente',
         'eis_sigla',
+        'eis_tipo_equipo',
         'eis_nombre_empresa_persona',
         'eis_tipo_identificacion',
         'eis_identificacion',

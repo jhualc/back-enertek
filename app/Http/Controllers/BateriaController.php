@@ -13,7 +13,7 @@ class BateriaController extends Controller
     public function index()
     {
         // Obtener todas las baterías
-        $baterias = Bateria::with(['marca'])->whereNull('deleted_at')->get();
+        $baterias = Bateria::whereNull('deleted_at')->get();
 
         return response()->json([
             'message' => 'Respuesta Ok',
@@ -30,7 +30,7 @@ class BateriaController extends Controller
             'bat_modelo' => 'required|string|max:255',
             'bat_voltaje' => 'required|numeric',
             'bat_capacidad' => 'required|numeric',
-            'mar_id' => 'required|exists:marca,mar_id'
+            'mar_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -68,7 +68,7 @@ class BateriaController extends Controller
             'bat_modelo' => 'string|max:255',
             'bat_voltaje' => 'numeric',
             'bat_capacidad' => 'numeric',
-            'mar_id' => 'exists:marca,mar_id'
+            'mar_id' => 'required'
         ]);
 
         if ($validator->fails()) {

@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('cliente_sedes', function (Blueprint $table) {
             $table->id('cls_id');
             $table->string('cls_descripcion');
-            $table->string('cls_direccion')->nullable();
+            $table->string('cls_ubicacion')->nullable();
+            $table->string('cls_direccion')->unique();
             $table->string('cls_ciudad')->nullable();
             $table->string('cls_departamento')->nullable();
             $table->string('cls_telefono')->nullable();
