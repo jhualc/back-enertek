@@ -34,6 +34,38 @@ class EquipoController extends Controller
     }
 
     /**
+     * Display a listing of the resource filtered by sede id from the route.
+     */
+    public function bySede(string $cls_id)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make([
+            'cls_id' => $cls_id,
+        ], [
+            'cls_id' => 'required|integer|exists:cliente_sedes,cls_id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $equipos = Equipo::with(['marca', 'tipoEquipo', 'sede'])
+            ->whereNull('deleted_at')
+            ->where('cls_id', (int) $cls_id)
+            ->get();
+
+        return response()->json([
+            'message' => 'Respuesta Ok',
+            'equipo' => $equipos,
+            'filters' => [
+                'cls_id' => (int) $cls_id
+            ]
+        ], 200);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()

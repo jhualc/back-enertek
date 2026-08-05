@@ -22,12 +22,33 @@ class ClientFullImportController extends Controller
         }
 
         $text = (string) $value;
+        $text = str_replace(['|', '/', '\\', '-', '(', ')', '[', ']', '{', '}', ':', ';', '.', ','], ' ', $text);
 
-        if (function_exists('iconv')) {
-            $text = @iconv('UTF-8', 'ASCII//TRANSLIT', $text);
+        $accentMap = [
+            'á' => 'a', 'à' => 'a', 'ä' => 'a', 'â' => 'a', 'ã' => 'a',
+            'é' => 'e', 'è' => 'e', 'ë' => 'e', 'ê' => 'e',
+            'í' => 'i', 'ì' => 'i', 'ï' => 'i', 'î' => 'i',
+            'ó' => 'o', 'ò' => 'o', 'ö' => 'o', 'ô' => 'o', 'õ' => 'o',
+            'ú' => 'u', 'ù' => 'u', 'ü' => 'u', 'û' => 'u',
+            'ñ' => 'n', 'ç' => 'c', 'ý' => 'y', 'ÿ' => 'y',
+            'Á' => 'A', 'À' => 'A', 'Ä' => 'A', 'Â' => 'A', 'Ã' => 'A',
+            'É' => 'E', 'È' => 'E', 'Ë' => 'E', 'Ê' => 'E',
+            'Í' => 'I', 'Ì' => 'I', 'Ï' => 'I', 'Î' => 'I',
+            'Ó' => 'O', 'Ò' => 'O', 'Ö' => 'O', 'Ô' => 'O', 'Õ' => 'O',
+            'Ú' => 'U', 'Ù' => 'U', 'Ü' => 'U', 'Û' => 'U',
+            'Ñ' => 'N', 'Ç' => 'C', 'Ý' => 'Y', 'Ÿ' => 'Y',
+        ];
+        $text = strtr($text, $accentMap);
+
+        if (function_exists('mb_strtolower')) {
+            $text = mb_strtolower($text, 'UTF-8');
+        } else {
+            $text = strtolower($text);
         }
 
-        $text = strtolower(trim(preg_replace('/[^a-z0-9]+/', ' ', $text)));
+        $text = preg_replace('/[^a-z0-9]+/', ' ', $text);
+        $text = preg_replace('/\s+/', ' ', $text);
+        $text = trim($text);
         $text = preg_replace('/\b([a-z]+)s\b/', '$1', $text);
 
         return $text;
@@ -53,6 +74,35 @@ class ClientFullImportController extends Controller
         }
 
         return true;
+    }
+
+    private function isLikelyHeaderMatch(string $headerNormalized, string $candidateNormalized): bool
+    {
+        if ($headerNormalized === '' || $candidateNormalized === '') {
+            return false;
+        }
+
+        if ($headerNormalized === $candidateNormalized) {
+            return true;
+        }
+
+        if ($this->containsAllWords($headerNormalized, $candidateNormalized)) {
+            return true;
+        }
+
+        $headerWords = array_values(array_filter(preg_split('/\s+/', $headerNormalized) ?: [], fn ($word) => $word !== ''));
+        $candidateWords = array_values(array_filter(preg_split('/\s+/', $candidateNormalized) ?: [], fn ($word) => $word !== ''));
+
+        if (count($candidateWords) === 0 || count($headerWords) === 0) {
+            return false;
+        }
+
+        $sharedWords = array_intersect($headerWords, $candidateWords);
+        if (count($sharedWords) >= max(1, min(2, count($candidateWords)))) {
+            return true;
+        }
+
+        return str_contains($headerNormalized, $candidateNormalized) || str_contains($candidateNormalized, $headerNormalized);
     }
 
     private function findBatteryColumns(array $headers): array
@@ -88,17 +138,46 @@ class ClientFullImportController extends Controller
 
     private function findColumnIndex(array $headers, array $candidates): ?int
     {
+        $normalizedCandidates = array_values(array_filter(array_map(function ($candidate) {
+            $normalized = $this->normalizeHeader((string) $candidate);
+            return $normalized !== '' ? $normalized : null;
+        }, $candidates)));
+
         foreach ($headers as $index => $header) {
             if ($header === null || trim((string) $header) === '') {
                 continue;
             }
-            
-            $headerLower = strtolower(trim((string) $header));
-            
-            foreach ($candidates as $candidate) {
-                $candidateLower = strtolower($candidate);
-                // Buscar coincidencia exacta o por contención simple
-                if ($headerLower === $candidateLower || str_contains($headerLower, $candidateLower)) {
+
+            $headerNormalized = $this->normalizeHeader((string) $header);
+
+            foreach ($normalizedCandidates as $candidateNormalized) {
+                if ($candidateNormalized === '' || $headerNormalized === '') {
+                    continue;
+                }
+
+                if ($headerNormalized === $candidateNormalized) {
+                    return $index;
+                }
+
+                $isSpecificMatch = false;
+                if (str_contains($headerNormalized, $candidateNormalized) || str_contains($candidateNormalized, $headerNormalized)) {
+                    $isSpecificMatch = true;
+                }
+
+                if (!$isSpecificMatch) {
+                    $headerWords = array_values(array_unique(array_filter(explode(' ', $headerNormalized), fn ($word) => $word !== '')));
+                    $candidateWords = array_values(array_unique(array_filter(explode(' ', $candidateNormalized), fn ($word) => $word !== '')));
+                    $commonWords = array_intersect($headerWords, $candidateWords);
+                    $isSpecificMatch = count($commonWords) >= 1 && (count($commonWords) >= count($candidateWords) || count($commonWords) >= 2);
+                }
+
+                if ($isSpecificMatch) {
+                    $isTipoIdentificacion = str_contains($headerNormalized, 'tipo') && str_contains($headerNormalized, 'identificacion');
+                    $isCandidateIdentificacion = str_contains($candidateNormalized, 'identificacion') && !str_contains($candidateNormalized, 'tipo');
+                    if ($isTipoIdentificacion && $isCandidateIdentificacion) {
+                        continue;
+                    }
+
                     return $index;
                 }
             }
@@ -261,9 +340,9 @@ class ClientFullImportController extends Controller
         $sectorEmpresaIndex = $this->findColumnIndex($header, ['sector empresa', 'sector', 'sector empresa', 'sector_empresa']);
         $tipoClienteIndex = $this->findColumnIndex($header, ['tipo cliente', 'tipo de cliente', 'tipo_cliente']);
         $siglaIndex = $this->findColumnIndex($header, ['sigla']);
-        $nombreEmpresaIndex = $this->findColumnIndex($header, ['nombre empresa', 'nombre empresa persona', 'nombre empresa persona', 'nombre_empresa_persona']);
-        $tipoIdentificacionIndex = $this->findColumnIndex($header, ['tipo identificacion', 'tipo de identificacion', 'tipo_identificacion']);
-        $identificacionIndex = $this->findColumnIndex($header, ['identificacion']);
+        $nombreEmpresaIndex = $this->findColumnIndex($header, ['nombre empresa', 'nombre empresa persona', 'nombre empresa persona', 'nombre empresa persona', 'nombre empresa persona', 'nombre empresa persona', 'nombre empresa persona']);
+        $tipoIdentificacionIndex = $this->findColumnIndex($header, ['tipo identificacion', 'tipo de identificacion', 'tipo identificacion', 'tipo id', 'tipo de id', 'tipo identificacion']);
+        $identificacionIndex = $this->findColumnIndex($header, ['identificacion', 'id', 'numero identificacion', 'numero de identificacion']);
         $dvIndex = $this->findColumnIndex($header, ['dv']);
         $departamentoIndex = $this->findColumnIndex($header, ['departamento']);
         $ciudadIndex = $this->findColumnIndex($header, ['ciudad']);

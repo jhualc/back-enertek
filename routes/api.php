@@ -71,7 +71,7 @@ Route::group(['middleware' => 'api'], function($router){
     Route::resource('/contrato-equipo', ContratoEquipoController::class);
     Route::delete('/contrato-equipos/delete-multiple', [ContratoEquipoController::class, 'destroyMultiple']);
     Route::resource('/equipo', EquipoController::class);
-    Route::get('/equipo/sede/{cls_id}', [EquipoController::class, 'index']);
+    Route::get('/equipo/sede/{cls_id}', [EquipoController::class, 'bySede']);
     Route::resource('/marcas', MarcaController::class);
     Route::resource('/tipo-equipo', TipoEquipoController::class);
     Route::get('/baterias', [BateriaController::class, 'index']);
@@ -90,7 +90,7 @@ Route::group(['middleware' => 'api'], function($router){
     Route::put('/user/{id}', [JWTController::class, 'update']);
     Route::delete('/user/{id}', [JWTController::class, 'delete']);
     Route::get('/cliente-sedes', [SedeClienteController::class, 'index']);
-    Route::get('/cliente-sedes/cliente/{cli_id}', [SedeClienteController::class, 'index']);
+    Route::get('/cliente-sedes/cliente/{cli_id}', [SedeClienteController::class, 'byCliente']);
     Route::post('/cliente-sedes', [SedeClienteController::class, 'store']);
     Route::get('/cliente-sedes/{id}', [SedeClienteController::class, 'show']);
     Route::put('/cliente-sedes/{id}', [SedeClienteController::class, 'update']);
