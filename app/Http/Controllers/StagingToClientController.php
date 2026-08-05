@@ -34,6 +34,21 @@ class StagingToClientController extends Controller
         return $text;
     }
 
+    private function resolveClienteIdentificacion($record): string
+    {
+        $identificacion = trim((string) ($record->eis_identificacion ?? ''));
+
+        if ($identificacion !== '') {
+            return $identificacion;
+        }
+
+        $nombre = trim((string) ($record->eis_nombre_empresa_persona ?? 'cliente'));
+        $nombreBase = $nombre !== '' ? preg_replace('/[^A-Za-z0-9]+/', '_', $nombre) : 'cliente';
+        $nombreBase = trim($nombreBase, '_');
+
+        return 'SIN_IDENTIFICACION_' . ($nombreBase !== '' ? $nombreBase : 'cliente') . '_' . ($record->id ?? '0');
+    }
+
     /**
      * Procesa los registros pendientes en la tabla staging y los inserta/actualiza en la tabla de clientes.
      */
@@ -62,22 +77,19 @@ class StagingToClientController extends Controller
 
         foreach ($stagingRecords as $record) {
             try {
-                // Validar que tengamos la identificación necesaria
-                if (empty($record->eis_identificacion)) {
-                    throw new \Exception("Identificación de cliente faltante.");
-                }
+                $identificacionCliente = $this->resolveClienteIdentificacion($record);
 
                 $this->consoleLog('Procesando registro de staging', [
                     'record_id' => $record->id,
-                    'identificacion' => $record->eis_identificacion,
+                    'identificacion' => $identificacionCliente,
                     'batch_id' => $batchId,
                 ]);
 
-                DB::transaction(function () use ($record, &$processed) {
+                DB::transaction(function () use ($record, $identificacionCliente, &$processed) {
                     // 1. Insertar o actualizar el Cliente en la tabla final
                     try {
                         DB::table('cliente')->updateOrInsert(
-                            ['cli_identificacion' => $record->eis_identificacion],
+                            ['cli_identificacion' => $identificacionCliente],
                             [
                                 'cli_nombre' => $record->eis_nombre_empresa_persona ?? 'CLIENTE SIN NOMBRE',
                                 'cli_tipo_identificacion' => $record->eis_tipo_identificacion ?? 'CC/NIT',
@@ -92,7 +104,7 @@ class StagingToClientController extends Controller
                     }
 
                     $clienteId = DB::table('cliente')
-                        ->where('cli_identificacion', $record->eis_identificacion)
+                        ->where('cli_identificacion', $identificacionCliente)
                         ->value('cli_id');
 
                     if (!$clienteId) {

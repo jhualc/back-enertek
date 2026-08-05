@@ -34,6 +34,38 @@ class SedeClienteController extends Controller
     }
 
     /**
+     * Display a listing of the resource filtered by client id from the route.
+     */
+    public function byCliente(string $cli_id)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make([
+            'cli_id' => $cli_id,
+        ], [
+            'cli_id' => 'required|integer|exists:cliente,cli_id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $clienteSedes = ClienteSede::with('cliente')
+            ->whereNull('deleted_at')
+            ->where('cli_id', (int) $cli_id)
+            ->get();
+
+        return response()->json([
+            'message' => 'Sedes de clientes obtenidas exitosamente',
+            'data' => $clienteSedes,
+            'filters' => [
+                'cli_id' => (int) $cli_id
+            ]
+        ], 200);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
