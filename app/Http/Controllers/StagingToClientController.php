@@ -49,6 +49,21 @@ class StagingToClientController extends Controller
         return 'SIN_IDENTIFICACION_' . ($nombreBase !== '' ? $nombreBase : 'cliente') . '_' . ($record->id ?? '0');
     }
 
+    private function resolveTelefonoSede($record): ?string
+    {
+        $telefono = trim((string) ($record->eis_telefono_contacto_2 ?? ''));
+        if ($telefono !== '') {
+            return $telefono;
+        }
+
+        $telefono = trim((string) ($record->eis_telefono_contacto_1 ?? ''));
+        if ($telefono !== '') {
+            return $telefono;
+        }
+
+        return null;
+    }
+
     /**
      * Procesa los registros pendientes en la tabla staging y los inserta/actualiza en la tabla de clientes.
      */
@@ -176,7 +191,7 @@ class StagingToClientController extends Controller
                                 'cls_direccion' => $record->eis_direccion,
                                 'cls_ciudad' => $record->eis_ciudad,
                                 'cls_departamento' => $record->eis_departamento,
-                                'cls_telefono' => $record->eis_telefono_contacto_2 ?? $record->eis_telefono_contacto_1,
+                                'cls_telefono' => $this->resolveTelefonoSede($record),
                                 'cls_correo' => $record->eis_correo_contacto_2 ?? $record->eis_correo_contacto_1,
                                 'created_at' => now(),
                                 'updated_at' => now(),
@@ -347,7 +362,7 @@ class StagingToClientController extends Controller
                                 'cls_direccion' => $record->eis_direccion,
                                 'cls_departamento' => $record->eis_departamento,
                                 'cls_ciudad' => $record->eis_ciudad,
-                                'cls_telefono' => $record->eis_telefono_contacto_2 ?? $record->eis_telefono_contacto_1,
+                                'cls_telefono' => $this->resolveTelefonoSede($record),
                                 'cls_correo' => $record->eis_correo_contacto_2 ?? $record->eis_correo_contacto_1,
                                 'updated_at' => now(),
                                 'created_at' => now(),

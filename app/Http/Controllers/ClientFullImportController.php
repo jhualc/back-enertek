@@ -172,13 +172,30 @@ class ClientFullImportController extends Controller
                 }
 
                 if ($isSpecificMatch) {
-                    $isTipoIdentificacion = str_contains($headerNormalized, 'tipo') && str_contains($headerNormalized, 'identificacion');
-                    $isCandidateIdentificacion = str_contains($candidateNormalized, 'identificacion') && !str_contains($candidateNormalized, 'tipo');
-                    if ($isTipoIdentificacion && $isCandidateIdentificacion) {
+                    $isTipoIdentificacionHeader = str_contains($headerNormalized, 'tipo') && str_contains($headerNormalized, 'identificacion');
+                    $isTipoIdentificacionCandidate = str_contains($candidateNormalized, 'tipo') && str_contains($candidateNormalized, 'identificacion');
+                    $isPlainIdentificacionHeader = str_contains($headerNormalized, 'identificacion') && !str_contains($headerNormalized, 'tipo');
+                    $isPlainIdentificacionCandidate = str_contains($candidateNormalized, 'identificacion') && !str_contains($candidateNormalized, 'tipo');
+
+                    if ($isTipoIdentificacionCandidate && !$isTipoIdentificacionHeader) {
                         continue;
                     }
 
-                    return $index;
+                    if ($isPlainIdentificacionCandidate && $isTipoIdentificacionHeader) {
+                        continue;
+                    }
+
+                    if ($isPlainIdentificacionCandidate && $isPlainIdentificacionHeader) {
+                        return $index;
+                    }
+
+                    if ($isTipoIdentificacionCandidate && $isTipoIdentificacionHeader) {
+                        return $index;
+                    }
+
+                    if (!$isTipoIdentificacionCandidate && !$isPlainIdentificacionCandidate) {
+                        return $index;
+                    }
                 }
             }
         }
@@ -337,33 +354,44 @@ class ClientFullImportController extends Controller
         ]);
 
         // Detectar índices de columna por nombre en la fila de encabezados (si existe)
-        $sectorEmpresaIndex = $this->findColumnIndex($header, ['sector empresa', 'sector', 'sector empresa', 'sector_empresa']);
-        $tipoClienteIndex = $this->findColumnIndex($header, ['tipo cliente', 'tipo de cliente', 'tipo_cliente']);
+        $sectorEmpresaIndex = $this->findColumnIndex($header, ['sector_empresa', 'sector empresa', 'sector', 'sector_empresa']);
+        $tipoClienteIndex = $this->findColumnIndex($header, ['tipo_cliente', 'tipo cliente', 'tipo de cliente', 'tipo_cliente']);
         $siglaIndex = $this->findColumnIndex($header, ['sigla']);
-        $nombreEmpresaIndex = $this->findColumnIndex($header, ['nombre empresa', 'nombre empresa persona', 'nombre empresa persona', 'nombre empresa persona', 'nombre empresa persona', 'nombre empresa persona', 'nombre empresa persona']);
-        $tipoIdentificacionIndex = $this->findColumnIndex($header, ['tipo identificacion', 'tipo de identificacion', 'tipo identificacion', 'tipo id', 'tipo de id', 'tipo identificacion']);
+        $nombreEmpresaIndex = $this->findColumnIndex($header, ['nombre_empresa', 'nombre empresa', 'nombre empresa persona', 'nombre_empresa_persona']);
+        $tipoIdentificacionIndex = $this->findColumnIndex($header, ['tipo_identificacion', 'tipo identificacion', 'tipo de identificacion', 'tipo id', 'tipo de id']);
         $identificacionIndex = $this->findColumnIndex($header, ['identificacion', 'id', 'numero identificacion', 'numero de identificacion']);
+
+        $explicitTipoIdentificacionIndex = $this->findColumnIndex($header, ['tipo_identificacion']);
+        $explicitIdentificacionIndex = $this->findColumnIndex($header, ['identificacion']);
+
+        if ($explicitTipoIdentificacionIndex !== null) {
+            $tipoIdentificacionIndex = $explicitTipoIdentificacionIndex;
+        }
+
+        if ($explicitIdentificacionIndex !== null) {
+            $identificacionIndex = $explicitIdentificacionIndex;
+        }
         $dvIndex = $this->findColumnIndex($header, ['dv']);
         $departamentoIndex = $this->findColumnIndex($header, ['departamento']);
         $ciudadIndex = $this->findColumnIndex($header, ['ciudad']);
         $direccionIndex = $this->findColumnIndex($header, ['direccion']);
         $sedeIndex = $this->findColumnIndex($header, ['sede']);
-        $ubicacionEquipoIndex = $this->findColumnIndex($header, ['ubicacion equipo', 'ubicacion del equipo', 'ubicacion_equipo']);
-        $nombreContacto1Index = $this->findColumnIndex($header, ['nombre contacto 1', 'contacto 1']);
-        $correoContacto1Index = $this->findColumnIndex($header, ['correo contacto 1', 'correo 1']);
-        $telefonoContacto1Index = $this->findColumnIndex($header, ['telefono contacto 1', 'telefono 1']);
-        $nombreContacto2Index = $this->findColumnIndex($header, ['nombre contacto 2', 'contacto 2']);
-        $correoContacto2Index = $this->findColumnIndex($header, ['correo contacto 2', 'correo 2']);
-        $telefonoContacto2Index = $this->findColumnIndex($header, ['telefono contacto 2', 'telefono 2']);
-        $estadoClienteIndex = $this->findColumnIndex($header, ['estado cliente', 'estado']);
-        $tipoRelacionComercialIndex = $this->findColumnIndex($header, ['tipo relacion comercial', 'tipo de relacion comercial', 'tipo_relacion_comercial']);
-        $marcaEquipoIndex = $this->findColumnIndex($header, ['marca equipo', 'marca del equipo', 'marca_equipo', 'marca de equipo']);
-        $tipoEquipoIndex = $this->findColumnIndex($header, ['tipo equipo', 'tipo de equipo', 'tipo_equipo']);
-        $modeloEquipoIndex = $this->findColumnIndex($header, ['modelo equipo', 'modelo del equipo', 'modelo_equipo', 'modelo de equipo']);
-        $potenciaIndex = $this->findColumnIndex($header, ['potencia', 'potencia kva', 'potencia kva', 'potencia_kva']);
-        $serialIndex = $this->findColumnIndex($header, ['serial', 'serial equipo', 'serial_equipo']);
-        $cantidadBateriasIntIndex = $this->findColumnIndex($header, ['cantidad baterias int', 'cantidad de baterias int', 'cantidad de baterías int', 'cantidad_baterias_int', 'cant baterias int']);
-        $cantidadBateriasExtIndex = $this->findColumnIndex($header, ['cantidad baterias ext', 'cantidad de baterias ext', 'cantidad de baterías ext', 'cantidad_baterias_ext', 'cant baterias ext']);
+        $ubicacionEquipoIndex = $this->findColumnIndex($header, ['ubicacion_equipo', 'ubicacion equipo', 'ubicacion del equipo']);
+        $nombreContacto1Index = $this->findColumnIndex($header, ['contacto1', 'nombre contacto 1', 'contacto 1']);
+        $correoContacto1Index = $this->findColumnIndex($header, ['correo_electronico_1', 'correo contacto 1', 'correo 1']);
+        $telefonoContacto1Index = $this->findColumnIndex($header, ['movil_1', 'telefono contacto 1', 'telefono 1']);
+        $nombreContacto2Index = $this->findColumnIndex($header, ['contacto2', 'nombre contacto 2', 'contacto 2']);
+        $correoContacto2Index = $this->findColumnIndex($header, ['correo_electronico_2', 'correo contacto 2', 'correo 2']);
+        $telefonoContacto2Index = $this->findColumnIndex($header, ['movil_2', 'telefono contacto 2', 'telefono 2']);
+        $estadoClienteIndex = $this->findColumnIndex($header, ['estado_cliente', 'estado cliente', 'estado']);
+        $tipoRelacionComercialIndex = $this->findColumnIndex($header, ['relacion_comercial', 'tipo relacion comercial', 'tipo de relacion comercial', 'tipo_relacion_comercial']);
+        $marcaEquipoIndex = $this->findColumnIndex($header, ['marca', 'marca_equipo', 'marca equipo', 'marca del equipo', 'marca de equipo']);
+        $tipoEquipoIndex = $this->findColumnIndex($header, ['tipo_equipo', 'tipo equipo', 'tipo de equipo']);
+        $modeloEquipoIndex = $this->findColumnIndex($header, ['modelo', 'modelo_equipo', 'modelo equipo', 'modelo del equipo', 'modelo de equipo']);
+        $potenciaIndex = $this->findColumnIndex($header, ['potencia', 'potencia_kva', 'potencia kva']);
+        $serialIndex = $this->findColumnIndex($header, ['serial', 'serial_equipo', 'serial equipo']);
+        $cantidadBateriasIntIndex = $this->findColumnIndex($header, ['cantidad_baterias', 'cantidad_baterias_int', 'cantidad baterias int', 'cantidad de baterias int', 'cantidad de baterías int', 'cant baterias int']);
+        $cantidadBateriasExtIndex = $this->findColumnIndex($header, ['cantidad_baterias_ext', 'cantidad baterias ext', 'cantidad de baterias ext', 'cantidad de baterías ext', 'cant baterias ext']);
         
         // Detectar columnas de batería con método especializado
         $batteryColumns = $this->findBatteryColumns($header);
@@ -415,40 +443,51 @@ class ClientFullImportController extends Controller
         }
 
         foreach ($dataRows as $row) {
+            $tipoIdentificacionValue = $this->getCellValue($row, $tipoIdentificacionIndex);
+            $identificacionValue = $this->getCellValue($row, $identificacionIndex);
+
+            if ($tipoIdentificacionIndex === null) {
+                $tipoIdentificacionValue = null;
+            }
+
+            if ($identificacionIndex === null) {
+                $identificacionValue = null;
+            }
+
             // Mapeo de columnas según la migración excel_import_staging
             $insertData[] = [
-                'eis_sector_empresa'          => $this->getCellValue($row, $sectorEmpresaIndex ?? 0) ?? null,
-                'eis_tipo_cliente'            => $this->getCellValue($row, $tipoClienteIndex ?? 1) ?? null,
-                'eis_sigla'                   => $this->getCellValue($row, $siglaIndex ?? 2) ?? null,
-                'eis_nombre_empresa_persona'  => $this->getCellValue($row, $nombreEmpresaIndex ?? 3) ?? null,
-                'eis_tipo_identificacion'     => $this->getCellValue($row, $tipoIdentificacionIndex ?? 4) ?? null,
-                'eis_identificacion'          => $this->getCellValue($row, $identificacionIndex ?? 5) ?? null,
-                'eis_dv'                      => $this->getCellValue($row, $dvIndex ?? 6) ?? null,
-                'eis_departamento'            => $this->getCellValue($row, $departamentoIndex ?? 7) ?? null,
-                'eis_ciudad'                  => $this->getCellValue($row, $ciudadIndex ?? 8) ?? null,
-                'eis_direccion'               => $this->getCellValue($row, $direccionIndex ?? 9) ?? null,
-                'eis_sede'                    => $this->getCellValue($row, $sedeIndex ?? 10) ?? null,
-                'eis_ubicacion_equipo'        => $this->getCellValue($row, $ubicacionEquipoIndex ?? 11) ?? null,
-                'eis_nombre_contacto_1'       => $this->getCellValue($row, $nombreContacto1Index ?? 12) ?? null,
-                'eis_correo_contacto_1'       => $this->getCellValue($row, $correoContacto1Index ?? 13) ?? null,
-                'eis_telefono_contacto_1'     => $this->getCellValue($row, $telefonoContacto1Index ?? 14) ?? null,
-                'eis_nombre_contacto_2'       => $this->getCellValue($row, $nombreContacto2Index ?? 15) ?? null,
-                'eis_correo_contacto_2'       => $this->getCellValue($row, $correoContacto2Index ?? 16) ?? null,
-                'eis_telefono_contacto_2'     => $this->getCellValue($row, $telefonoContacto2Index ?? 17) ?? null,
-                'eis_estado_cliente'          => $this->getCellValue($row, $estadoClienteIndex ?? 18) ?? null,
-                'eis_tipo_relacion_comercial' => $this->getCellValue($row, $tipoRelacionComercialIndex ?? 19) ?? null,
-                'eis_marca_equipo'            => $this->getCellValue($row, $marcaEquipoIndex ?? 20) ?? null,
-                'eis_tipo_equipo'             => $this->getCellValue($row, $tipoEquipoIndex ?? 21) ?? null,
-                'eis_modelo_equipo'           => $this->getCellValue($row, $modeloEquipoIndex ?? 22) ?? null,
-                'eis_potencia_kva'            => $this->getCellValue($row, $potenciaIndex ?? 23) ?? null,
-                'eis_serial_equipo'           => $this->getCellValue($row, $serialIndex ?? 24) ?? null,
-                'eis_cantidad_baterias_int'   => $this->normalizeNumericCell($this->getCellValue($row, $cantidadBateriasIntIndex ?? 25)),
-                'eis_cantidad_baterias_ext'   => $this->normalizeNumericCell($this->getCellValue($row, $cantidadBateriasExtIndex ?? 26)),
-                'eis_marca_bateria'           => $this->normalizeBatteryValue($this->getCellValue($row, $marcaBateriaIndex ?? 27)),
-                'eis_referencia_bateria'      => $this->normalizeBatteryValue($this->getCellValue($row, $referenciaBateriaIndex ?? 28)),
-                'eis_voltaje_bateria'         => $this->normalizeBatteryValue($this->getCellValue($row, $voltajeBateriaIndex ?? 29)),
-                'eis_amperaje_bateria'        => $this->normalizeBatteryValue($this->getCellValue($row, $amperajeBateriaIndex ?? 30)),
-                'eis_snmps'                   => $this->getCellValue($row, $snmpsIndex ?? 31) ?? null,
+                'eis_sector_empresa'          => $this->getCellValue($row, $sectorEmpresaIndex),
+                'eis_tipo_cliente'            => $this->getCellValue($row, $tipoClienteIndex),
+                'eis_sigla'                   => $this->getCellValue($row, $siglaIndex),
+                'eis_nombre_empresa_persona'  => $this->getCellValue($row, $nombreEmpresaIndex),
+                'eis_tipo_identificacion'     => $tipoIdentificacionValue,
+                'eis_identificacion'          => $identificacionValue,
+                'eis_dv'                      => $this->getCellValue($row, $dvIndex),
+                'eis_departamento'            => $this->getCellValue($row, $departamentoIndex),
+                'eis_ciudad'                  => $this->getCellValue($row, $ciudadIndex),
+                'eis_direccion'               => $this->getCellValue($row, $direccionIndex),
+                'eis_sede'                    => $this->getCellValue($row, $sedeIndex),
+                'eis_ubicacion_equipo'        => $this->getCellValue($row, $ubicacionEquipoIndex),
+                'eis_nombre_contacto_1'       => $this->getCellValue($row, $nombreContacto1Index),
+                'eis_correo_contacto_1'       => $this->getCellValue($row, $correoContacto1Index),
+                'eis_telefono_contacto_1'     => $this->getCellValue($row, $telefonoContacto1Index),
+                'eis_nombre_contacto_2'       => $this->getCellValue($row, $nombreContacto2Index),
+                'eis_correo_contacto_2'       => $this->getCellValue($row, $correoContacto2Index),
+                'eis_telefono_contacto_2'     => $this->getCellValue($row, $telefonoContacto2Index),
+                'eis_estado_cliente'          => $this->getCellValue($row, $estadoClienteIndex),
+                'eis_tipo_relacion_comercial' => $this->getCellValue($row, $tipoRelacionComercialIndex),
+                'eis_marca_equipo'            => $this->getCellValue($row, $marcaEquipoIndex),
+                'eis_tipo_equipo'             => $this->getCellValue($row, $tipoEquipoIndex),
+                'eis_modelo_equipo'           => $this->getCellValue($row, $modeloEquipoIndex),
+                'eis_potencia_kva'            => $this->getCellValue($row, $potenciaIndex),
+                'eis_serial_equipo'           => $this->getCellValue($row, $serialIndex),
+                'eis_cantidad_baterias_int'   => $this->normalizeNumericCell($this->getCellValue($row, $cantidadBateriasIntIndex)),
+                'eis_cantidad_baterias_ext'   => $this->normalizeNumericCell($this->getCellValue($row, $cantidadBateriasExtIndex)),
+                'eis_marca_bateria'           => $this->normalizeBatteryValue($this->getCellValue($row, $marcaBateriaIndex)),
+                'eis_referencia_bateria'      => $this->normalizeBatteryValue($this->getCellValue($row, $referenciaBateriaIndex)),
+                'eis_voltaje_bateria'         => $this->normalizeBatteryValue($this->getCellValue($row, $voltajeBateriaIndex)),
+                'eis_amperaje_bateria'        => $this->normalizeBatteryValue($this->getCellValue($row, $amperajeBateriaIndex)),
+                'eis_snmps'                   => $this->getCellValue($row, $snmpsIndex),
                 'import_status'               => 'pendiente',
                 'import_batch_id'             => $batchId,
                 'created_at'                  => now(),
