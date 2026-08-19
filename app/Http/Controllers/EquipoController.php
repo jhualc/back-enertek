@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Equipo;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class EquipoController extends Controller
 {
@@ -80,15 +81,16 @@ class EquipoController extends Controller
     {
         // Validar los datos de entrada
         $validatedData = $request->validate([
-            'equ_id' => 'unique:equipo',
+            'equ_id' => 'nullable|unique:equipo',
             'equ_modelo' => 'required|string|max:255',
-            'equ_serial' => 'required|string|max:255',
-            'equ_qr_code' => 'required|string|max:255',
-            'equ_potencia' => 'string|max:255',
-            'mar_id' => 'required',
-            'teq_id' => 'required',
+            'equ_serial' => 'required|string|max:255|unique:equipo',
+            'equ_qr_code' => 'nullable|string|max:255',
+            'equ_potencia' => 'nullable|string|max:255',
+            'mar_id' => 'required|integer|exists:marca,mar_id',
+            'teq_id' => 'required|integer|exists:tipo_equipo,teq_id',
+            'cls_id' => 'required|integer|exists:cliente_sedes,cls_id',
             'equ_cant_baterias' => 'required|integer',
-            'equ_ubicacion' => 'string|max:255'
+            'equ_ubicacion' => 'nullable|string|max:255'
         ]);
 
         // Crear el registro
@@ -96,7 +98,7 @@ class EquipoController extends Controller
 
         return response()->json([
             'message' => 'Equipo creado exitosamente',
-            'data' => $equipo
+            'data' => $equipo->load(['marca', 'tipoEquipo', 'sede'])
         ], 201);
     }
 
@@ -125,14 +127,15 @@ class EquipoController extends Controller
     {
         // Validar los datos
         $validatedData = $request->validate([
-            'equ_id' => 'required',
-            'equ_modelo' => 'required|string|max:255',
-            'equ_serial' => 'required|string|max:255',
-            'equ_qr_code' => 'required|string|max:255',
-            'equ_potencia' => 'string|max:255',
-            'mar_id' => 'required',
-            'teq_id' => 'required',
-            'equ_cant_baterias' => 'required|integer'
+            'equ_modelo' => 'sometimes|required|string|max:255',
+            'equ_serial' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('equipo')->ignore($id, 'equ_id')],
+            'equ_qr_code' => 'nullable|string|max:255',
+            'equ_potencia' => 'nullable|string|max:255',
+            'mar_id' => 'sometimes|required|integer|exists:marca,mar_id',
+            'teq_id' => 'sometimes|required|integer|exists:tipo_equipo,teq_id',
+            'cls_id' => 'sometimes|required|integer|exists:cliente_sedes,cls_id',
+            'equ_cant_baterias' => 'sometimes|required|integer',
+            'equ_ubicacion' => 'nullable|string|max:255'
         ]);
 
         // Encontrar y actualizar el equipo
@@ -141,7 +144,7 @@ class EquipoController extends Controller
 
         return response()->json([
             'message' => 'Equipo actualizado exitosamente',
-            'data' => $equipo
+            'data' => $equipo->load(['marca', 'tipoEquipo', 'sede'])
         ]);
     }
 
