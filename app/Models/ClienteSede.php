@@ -32,4 +32,9 @@ class ClienteSede extends Model
     {
         return $this->belongsTo(Cliente::class, 'cli_id');
     }
+
+    public function equipos()
+    {
+        return $this->hasMany(Equipo::class, 'cls_id', 'cls_id');
+    }
 }
