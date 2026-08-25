@@ -32,12 +32,22 @@ class ExcelImportController extends Controller
 
         // Procesar los datos
         $insertData = [];
+        $erroresImportacion = [];
         foreach ($rows as $index => $row) {
             if ($index == 0) continue; // Omitir encabezados
+
+            $identificacion = trim((string) ($row[1] ?? ''));
+            if ($identificacion === '') {
+                $erroresImportacion[] = [
+                    'fila' => $index + 1,
+                    'error' => 'La identificación del cliente es obligatoria'
+                ];
+                continue;
+            }
         
             $insertData[] = [
                 'cli_nombre' => $row[0] ?? null,
-                'cli_identificacion' => $row[1] ?? null,
+                'cli_identificacion' => $identificacion,
                 'cli_tipo_identificacion' => $row[2] ?? null, // Asegúrate de que esta sea la columna correcta
                 'created_at' => now(), // Agregar timestamp si la tabla lo usa
                 'updated_at' => now()
@@ -47,7 +57,21 @@ class ExcelImportController extends Controller
         // Insertar en la base de datos
         if (!empty($insertData)) {
             DB::table('cliente')->insert($insertData);
-            return response()->json(['message' => 'Archivo procesado con éxito'], 200);
+            return response()->json([
+                'message' => empty($erroresImportacion)
+                    ? 'Archivo procesado con éxito'
+                    : 'Archivo procesado con errores',
+                'errorCount' => count($erroresImportacion),
+                'errors' => $erroresImportacion
+            ], 200);
+        }
+
+        if (!empty($erroresImportacion)) {
+            return response()->json([
+                'message' => 'No se insertaron registros porque la identificación es obligatoria',
+                'errorCount' => count($erroresImportacion),
+                'errors' => $erroresImportacion
+            ], 422);
         }
 
         return response()->json(['error' => 'No se pudieron procesar los datos'], 500);

@@ -72,9 +72,9 @@ class ExcelImportProcessorController extends Controller
 
     private function processStagingRecord($record)
     {
-        $identificacion = $record->eis_identificacion;
+        $identificacion = trim((string) $record->eis_identificacion);
 
-        if (!$identificacion) {
+        if ($identificacion === '') {
             throw new \Exception("Identificación de cliente requerida");
         }
 
