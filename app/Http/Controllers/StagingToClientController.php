@@ -42,11 +42,7 @@ class StagingToClientController extends Controller
             return $identificacion;
         }
 
-        $nombre = trim((string) ($record->eis_nombre_empresa_persona ?? 'cliente'));
-        $nombreBase = $nombre !== '' ? preg_replace('/[^A-Za-z0-9]+/', '_', $nombre) : 'cliente';
-        $nombreBase = trim($nombreBase, '_');
-
-        return 'SIN_IDENTIFICACION_' . ($nombreBase !== '' ? $nombreBase : 'cliente') . '_' . ($record->id ?? '0');
+        throw new \InvalidArgumentException('Identificación de cliente requerida');
     }
 
     private function resolveTelefonoSede($record): ?string

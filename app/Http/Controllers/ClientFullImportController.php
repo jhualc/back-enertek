@@ -260,9 +260,9 @@ class ClientFullImportController extends Controller
     private function getRowsFromWorksheet($worksheet): array
     {
         $rows = $worksheet->toArray();
-        $firstNonEmptyIndex = null;
+        $nonEmptyRows = [];
 
-        foreach ($rows as $index => $row) {
+        foreach ($rows as $row) {
             $hasContent = false;
             foreach ($row as $cell) {
                 if ($cell !== null && trim((string) $cell) !== '') {
@@ -272,16 +272,11 @@ class ClientFullImportController extends Controller
             }
 
             if ($hasContent) {
-                $firstNonEmptyIndex = $index;
-                break;
+                $nonEmptyRows[] = $row;
             }
         }
 
-        if ($firstNonEmptyIndex === null) {
-            return [];
-        }
-
-        return array_slice($rows, $firstNonEmptyIndex);
+        return $nonEmptyRows;
     }
 
     private function getDataRowsFromSpreadsheet($spreadsheet): array
