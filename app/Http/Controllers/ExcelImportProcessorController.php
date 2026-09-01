@@ -13,12 +13,16 @@ use App\Models\Bateria;
 use App\Models\BateriaEquipo;
 use App\Models\Marca;
 use App\Models\TipoEquipo;
+use App\Traits\ImportResultsTrait;
 
 class ExcelImportProcessorController extends Controller
 {
+    use ImportResultsTrait;
+
     public function processBatch(Request $request)
     {
         $batchId = $request->input('batch_id');
+        $returnFormat = $request->input('format', 'csv'); // 'csv' o 'json'
         
         if (!$batchId) {
             return response()->json(['error' => 'batch_id requerido'], 400);
@@ -32,8 +36,8 @@ class ExcelImportProcessorController extends Controller
             return response()->json(['error' => 'No hay registros pendientes para este batch'], 404);
         }
 
-        $successCount = 0;
-        $errorCount = 0;
+        $results = [];
+        $rowNumber = 2; // Iniciamos en 2 porque 1 es el encabezado
 
         try {
             DB::beginTransaction();
@@ -45,24 +49,47 @@ class ExcelImportProcessorController extends Controller
                         'import_status' => 'procesado',
                         'import_error' => null
                     ]);
-                    $successCount++;
+                    
+                    $results[] = [
+                        'row' => $rowNumber,
+                        'status' => 'success',
+                        'error' => null,
+                        'data' => $record->toArray()
+                    ];
                 } catch (\Exception $e) {
                     $record->update([
                         'import_status' => 'error',
                         'import_error' => $e->getMessage()
                     ]);
-                    $errorCount++;
+                    
+                    $results[] = [
+                        'row' => $rowNumber,
+                        'status' => 'error',
+                        'error' => $e->getMessage(),
+                        'data' => $record->toArray()
+                    ];
                 }
+                
+                $rowNumber++;
             }
 
             DB::commit();
 
-            return response()->json([
-                'message' => "Batch {$batchId} procesado",
-                'successCount' => $successCount,
-                'errorCount' => $errorCount,
-                'totalRecords' => $stagingRecords->count()
-            ], 200);
+            // Generar resumen
+            $summary = $this->generateImportSummary($results);
+
+            // Devolver CSV o JSON según el parámetro
+            if ($returnFormat === 'json') {
+                return response()->json([
+                    'message' => "Batch {$batchId} procesado",
+                    'summary' => $summary,
+                    'results' => $results
+                ], 200);
+            }
+
+            // Por defecto, devolver CSV
+            $filename = "importacion_batch_{$batchId}_" . date('Y-m-d_H-i-s') . '.csv';
+            return $this->generateImportResultsCsv($results, $filename);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -262,5 +289,41 @@ class ExcelImportProcessorController extends Controller
             'error' => $stats['error'] ?? 0,
             'total' => $stats->sum()
         ], 200);
+    }
+
+    /**
+     * Endpoint para descargar el CSV de resultados para un batch previamente procesado
+     */
+    public function getImportResultsCsv(Request $request)
+    {
+        $batchId = $request->input('batch_id');
+
+        if (!$batchId) {
+            return response()->json(['error' => 'batch_id requerido'], 400);
+        }
+
+        $stagingRecords = ExcelImportStaging::where('import_batch_id', $batchId)
+            ->whereIn('import_status', ['procesado', 'error'])
+            ->get();
+
+        if ($stagingRecords->isEmpty()) {
+            return response()->json(['error' => 'No se encontraron resultados para este batch'], 404);
+        }
+
+        $results = [];
+        $rowNumber = 2; // Iniciamos en 2 porque 1 es el encabezado
+
+        foreach ($stagingRecords as $record) {
+            $results[] = [
+                'row' => $rowNumber,
+                'status' => $record->import_status === 'procesado' ? 'success' : 'error',
+                'error' => $record->import_error,
+                'data' => $record->toArray()
+            ];
+            $rowNumber++;
+        }
+
+        $filename = "resultados_batch_{$batchId}_" . date('Y-m-d_H-i-s') . '.csv';
+        return $this->generateImportResultsCsv($results, $filename);
     }
 }

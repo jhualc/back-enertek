@@ -127,8 +127,14 @@ class SedeClienteController extends Controller
      */
     public function destroy(string $id)
     {
-        // Encontrar y eliminar la sede de cliente
         $clienteSede = ClienteSede::findOrFail($id);
+
+        if ($clienteSede->equipos()->exists()) {
+            return response()->json([
+                'message' => 'No se puede eliminar la sede porque tiene equipos asociados.'
+            ], 409);
+        }
+
         $clienteSede->delete();
 
         return response()->json([
@@ -144,10 +150,22 @@ class SedeClienteController extends Controller
         try {
             // Validar los datos de entrada
             $validatedData = $request->validate([
-                '*.cls_id' => 'required|exists:cliente_sede,cls_id'
+                '*.cls_id' => 'required|exists:cliente_sedes,cls_id'
             ]);
 
             $ids = collect($validatedData)->pluck('cls_id')->all();
+
+            $sedesConEquipos = ClienteSede::whereIn('cls_id', $ids)
+                ->whereHas('equipos')
+                ->pluck('cls_id')
+                ->all();
+
+            if (!empty($sedesConEquipos)) {
+                return response()->json([
+                    'message' => 'No se pueden eliminar las sedes que tienen equipos asociados.',
+                    'sedes_bloqueadas' => $sedesConEquipos
+                ], 409);
+            }
 
             ClienteSede::whereIn('cls_id', $ids)->delete();
 
