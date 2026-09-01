@@ -91,8 +91,14 @@ class MarcaController extends Controller
      */
     public function destroy(string $id)
     {
-        // Encontrar y eliminar la marca
         $marca = Marca::findOrFail($id);
+
+        if ($this->marcaTieneDependencias($id)) {
+            return response()->json([
+                'message' => 'No se puede eliminar la marca porque tiene equipos o baterías asociadas.'
+            ], 409);
+        }
+
         $marca->delete();
 
         return response()->json([
@@ -110,28 +116,34 @@ class MarcaController extends Controller
                 '*.mar_id' => 'required|exists:marca,mar_id', 
             ]);
 
-            
             \Log::info('Datos validados: ' . json_encode($validatedData));
 
-        
             $ids = collect($validatedData)->pluck('mar_id')->all();
-        
-            
+
+            $marcasBloqueadas = collect($ids)
+                ->filter(fn ($id) => $this->marcaTieneDependencias($id))
+                ->values()
+                ->all();
+
+            if (!empty($marcasBloqueadas)) {
+                return response()->json([
+                    'message' => 'No se pueden eliminar las marcas que tienen equipos o baterías asociadas.',
+                    'marcas_bloqueadas' => $marcasBloqueadas
+                ], 409);
+            }
+
             \Log::info('Marcas a eliminar: ' . implode(', ', $ids));
 
-            
             Marca::whereIn('mar_id', $ids)->delete();
 
             \Log::info('Marcas eliminadas');
 
-            
             return response()->json([
                 'message' => 'Marcas eliminadas exitosamente',
                 'eliminados' => $ids 
             ], 200);
         
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Captura errores de validación
             return response()->json([
                 'message' => 'Error de validación',
                 'errors' => $e->errors(), 
@@ -139,19 +151,32 @@ class MarcaController extends Controller
             ], 422);
         
         } catch (\Exception $e) {
-            
             \Log::error('Error al eliminar marcas: ' . $e->getMessage());
 
             return response()->json([
                 'message' => 'Ocurrió un error al intentar eliminar las marcas',
-                'error' => $e->getMessage(), // Opcional: devuelve el mensaje del error
-                'mar_id_recibidos' => $request->all() // Devuelve los mar_id recibidos para validación
+                'error' => $e->getMessage(),
+                'mar_id_recibidos' => $request->all()
             ], 500);
         }
     }
 
-    
-    
-    
-    
+    private function marcaTieneDependencias(string $id): bool
+    {
+        if (\DB::table('equipo')
+            ->where('mar_id', $id)
+            ->whereNull('deleted_at')
+            ->exists()) {
+            return true;
+        }
+
+        if (\DB::table('bateria')
+            ->where('mar_id', $id)
+            ->whereNull('deleted_at')
+            ->exists()) {
+            return true;
+        }
+
+        return false;
+    }
 }

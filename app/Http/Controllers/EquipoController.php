@@ -153,8 +153,14 @@ class EquipoController extends Controller
      */
     public function destroy(string $id)
     {
-        // Encontrar y eliminar el equipo
         $equipo = Equipo::findOrFail($id);
+
+        if ($this->equipoTieneDependencias($id)) {
+            return response()->json([
+                'message' => 'No se puede eliminar el equipo porque tiene baterías o contratos asociados.'
+            ], 409);
+        }
+
         $equipo->delete();
 
         return response()->json([
@@ -173,6 +179,18 @@ class EquipoController extends Controller
 
             $ids = collect($validatedData)->pluck('equ_id')->all();
 
+            $equiposBloqueados = collect($ids)
+                ->filter(fn ($id) => $this->equipoTieneDependencias($id))
+                ->values()
+                ->all();
+
+            if (!empty($equiposBloqueados)) {
+                return response()->json([
+                    'message' => 'No se pueden eliminar los equipos que tienen baterías o contratos asociados.',
+                    'equipos_bloqueados' => $equiposBloqueados
+                ], 409);
+            }
+
             Equipo::whereIn('equ_id', $ids)->delete();
 
             return response()->json([
@@ -181,7 +199,6 @@ class EquipoController extends Controller
             ], 200);
         
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Captura errores de validación
             return response()->json([
                 'message' => 'Error de validación',
                 'errors' => $e->errors(), 
@@ -192,9 +209,28 @@ class EquipoController extends Controller
   
             return response()->json([
                 'message' => 'Ocurrió un error al intentar eliminar los equipos',
-                'error' => $e->getMessage(), // Opcional: devuelve el mensaje del error
-                'equ_id_recibidos' => $request->all() // Devuelve los mar_id recibidos para validación
+                'error' => $e->getMessage(),
+                'equ_id_recibidos' => $request->all()
             ], 500);
         }
+    }
+
+    private function equipoTieneDependencias(string $id): bool
+    {
+        if (\DB::table('bateria_equipo')
+            ->where('equ_id', $id)
+            ->whereNull('deleted_at')
+            ->exists()) {
+            return true;
+        }
+
+        if (\DB::table('contrato_equipo')
+            ->where('equ_id', $id)
+            ->whereNull('deleted_at')
+            ->exists()) {
+            return true;
+        }
+
+        return false;
     }
 }

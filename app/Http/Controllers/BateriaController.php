@@ -100,6 +100,12 @@ class BateriaController extends Controller
             return response()->json(['message' => 'Batería no encontrada'], 404);
         }
 
+        if ($this->bateriaTieneDependencias($id)) {
+            return response()->json([
+                'message' => 'No se puede eliminar la batería porque tiene relaciones con equipos.'
+            ], 409);
+        }
+
         $bateria->delete();
 
         return response()->json(['message' => 'Batería eliminada exitosamente'], 200);
@@ -119,11 +125,32 @@ class BateriaController extends Controller
         }
 
         $ids = collect($request->all())->pluck('bat_id')->all();
+
+        $bateriasBloqueadas = collect($ids)
+            ->filter(fn ($id) => $this->bateriaTieneDependencias($id))
+            ->values()
+            ->all();
+
+        if (!empty($bateriasBloqueadas)) {
+            return response()->json([
+                'message' => 'No se pueden eliminar las baterías que tienen relaciones con equipos.',
+                'baterias_bloqueadas' => $bateriasBloqueadas
+            ], 409);
+        }
+
         Bateria::whereIn('bat_id', $ids)->delete();
 
         return response()->json([
             'message' => 'Baterías eliminadas exitosamente',
             'eliminadas' => $ids
         ], 200);
+    }
+
+    private function bateriaTieneDependencias(string $id): bool
+    {
+        return \DB::table('bateria_equipo')
+            ->where('bat_id', $id)
+            ->whereNull('deleted_at')
+            ->exists();
     }
 }

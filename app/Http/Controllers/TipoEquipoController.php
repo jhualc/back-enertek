@@ -91,8 +91,14 @@ class TipoEquipoController extends Controller
      */
     public function destroy(string $id)
     {
-        // Encontrar y eliminar el tipo de equipo
         $tipoEquipo = TipoEquipo::findOrFail($id);
+
+        if ($this->tipoEquipoTieneDependencias($id)) {
+            return response()->json([
+                'message' => 'No se puede eliminar el tipo de equipo porque tiene equipos asociados.'
+            ], 409);
+        }
+
         $tipoEquipo->delete();
 
         return response()->json([
@@ -111,6 +117,18 @@ class TipoEquipoController extends Controller
 
             $ids = collect($validatedData)->pluck('teq_id')->all();
 
+            $tiposBloqueados = collect($ids)
+                ->filter(fn ($id) => $this->tipoEquipoTieneDependencias($id))
+                ->values()
+                ->all();
+
+            if (!empty($tiposBloqueados)) {
+                return response()->json([
+                    'message' => 'No se pueden eliminar los tipos de equipo que tienen equipos asociados.',
+                    'tipos_bloqueados' => $tiposBloqueados
+                ], 409);
+            }
+
             TipoEquipo::whereIn('teq_id', $ids)->delete();
 
             return response()->json([
@@ -119,7 +137,6 @@ class TipoEquipoController extends Controller
             ], 200);
         
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Captura errores de validación
             return response()->json([
                 'message' => 'Error de validación',
                 'errors' => $e->errors(), 
@@ -130,9 +147,17 @@ class TipoEquipoController extends Controller
   
             return response()->json([
                 'message' => 'Ocurrió un error al intentar eliminar los tipos de equipo',
-                'error' => $e->getMessage(), // Opcional: devuelve el mensaje del error
-                'teq_id_recibidos' => $request->all() // Devuelve los mar_id recibidos para validación
+                'error' => $e->getMessage(),
+                'teq_id_recibidos' => $request->all()
             ], 500);
         }
+    }
+
+    private function tipoEquipoTieneDependencias(string $id): bool
+    {
+        return \DB::table('equipo')
+            ->where('teq_id', $id)
+            ->whereNull('deleted_at')
+            ->exists();
     }
 }
