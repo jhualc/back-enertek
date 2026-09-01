@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Traits\ImportResultsTrait;
 
 class StagingToClientController extends Controller
 {
+    use ImportResultsTrait;
+
     private function consoleLog(string $message, array $context = []): void
     {
         Log::info($message, $context);
@@ -68,6 +71,7 @@ class StagingToClientController extends Controller
         set_time_limit(0); // Previene el timeout durante la migración de registros
 
         $batchId = $request->input('batch_id');
+        $returnFormat = $request->input('format', 'csv'); // 'csv' o 'json'
 
         if (!$batchId) {
             return response()->json(['error' => 'El campo batch_id es obligatorio para filtrar la importación.'], 400);
@@ -83,8 +87,10 @@ class StagingToClientController extends Controller
             return response()->json(['message' => 'No se encontraron registros pendientes para procesar en este lote.'], 404);
         }
 
+        $results = [];
         $processed = 0;
         $errors = 0;
+        $rowNumber = 2; // Iniciamos en 2 porque 1 es el encabezado
 
         foreach ($stagingRecords as $record) {
             try {
@@ -393,29 +399,64 @@ class StagingToClientController extends Controller
                     
                     $processed++;
                 });
+                
+                // Agregar resultado exitoso
+                $results[] = [
+                    'row' => $rowNumber,
+                    'status' => 'success',
+                    'error' => null,
+                    'data' => (array)$record
+                ];
 
             } catch (\Exception $e) {
                 $errors++;
+                
+                $this->consoleLog('ERROR al procesar registro', [
+                    'record_id' => $record->id ?? 'N/A',
+                    'error' => $e->getMessage()
+                ]);
 
                 try {
-                    DB::reconnect();
-                    DB::table('excel_import_staging')->where('id', $record->id)->update([
-                        'import_status' => 'error',
-                        'import_error' => $e->getMessage(),
-                        'updated_at' => now(),
-                    ]);
-                } catch (\Exception $innerException) {
-                    \Log::error('Fallo al actualizar el estado de staging tras error: ' . $innerException->getMessage(), [
-                        'record_id' => $record->id,
-                        'original_error' => $e->getMessage(),
+                    DB::table('excel_import_staging')
+                        ->where('id', $record->id)
+                        ->update([
+                            'import_status' => 'error',
+                            'import_error' => $e->getMessage(),
+                            'updated_at' => now()
+                        ]);
+                } catch (\Exception $updateException) {
+                    $this->consoleLog('ERROR al registrar error en staging', [
+                        'record_id' => $record->id ?? 'N/A',
+                        'error' => $updateException->getMessage()
                     ]);
                 }
+                
+                // Agregar resultado de error
+                $results[] = [
+                    'row' => $rowNumber,
+                    'status' => 'error',
+                    'error' => $e->getMessage(),
+                    'data' => (array)$record
+                ];
             }
+            
+            $rowNumber++;
         }
 
-        return response()->json([
-            'message' => 'Migración de clientes finalizada.',
-            'summary' => ['procesados' => $processed, 'errores' => $errors]
-        ], 200);
+        // Generar resumen
+        $summary = $this->generateImportSummary($results);
+
+        // Devolver CSV o JSON según el parámetro
+        if ($returnFormat === 'json') {
+            return response()->json([
+                'message' => 'Migración de clientes finalizada.',
+                'summary' => $summary,
+                'results' => $results
+            ], 200);
+        }
+
+        // Por defecto, devolver CSV
+        $filename = "migracion_batch_{$batchId}_" . date('Y-m-d_H-i-s') . '.csv';
+        return $this->generateImportResultsCsv($results, $filename);
     }
 }

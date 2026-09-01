@@ -109,7 +109,8 @@ Route::group(['middleware' => 'api'], function($router){
     Route::post('/import-migrate-clients', [StagingToClientController::class, 'migrateClients']);
     Route::get('/import-batch-status', [ExcelImportProcessorController::class, 'getBatchStatus']);
     Route::get('/import-batch-errors', [ExcelImportProcessorController::class, 'getErrors']);
-    
+    Route::get('/import-results-csv', [ExcelImportProcessorController::class, 'getImportResultsCsv']);
+
 
 
 
