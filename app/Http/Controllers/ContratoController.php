@@ -86,8 +86,14 @@ class ContratoController extends Controller
      */
     public function destroy(string $id)
     {
-        // Encontrar y eliminar el contrato
         $contrato = Contrato::findOrFail($id);
+
+        if ($this->contratoTieneDependencias($id)) {
+            return response()->json([
+                'message' => 'No se puede eliminar el contrato porque tiene equipos asociados.'
+            ], 409);
+        }
+
         $contrato->delete();
 
         return response()->json([
@@ -109,11 +115,32 @@ class ContratoController extends Controller
         }
 
         $ids = collect($request->all())->pluck('con_id')->all();
+
+        $contratosBloqueados = collect($ids)
+            ->filter(fn ($id) => $this->contratoTieneDependencias($id))
+            ->values()
+            ->all();
+
+        if (!empty($contratosBloqueados)) {
+            return response()->json([
+                'message' => 'No se pueden eliminar los contratos que tienen equipos asociados.',
+                'contratos_bloqueados' => $contratosBloqueados
+            ], 409);
+        }
+
         Contrato::whereIn('con_id', $ids)->delete();
 
         return response()->json([
             'message' => 'Contratos eliminados exitosamente',
             'eliminadas' => $ids
         ], 200);
+    }
+
+    private function contratoTieneDependencias(string $id): bool
+    {
+        return \DB::table('contrato_equipo')
+            ->where('con_id', $id)
+            ->whereNull('deleted_at')
+            ->exists();
     }
 }
