@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Models\ClienteSede;
+use App\Models\Equipo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\DB;
 
 class ClienteController extends Controller
 {
@@ -78,6 +81,13 @@ class ClienteController extends Controller
     public function destroy(string $id)
     {
         $cliente = Cliente::findOrFail($id);
+
+        if ($this->clienteTieneDependencias($id)) {
+            return response()->json([
+                'message' => 'No se puede eliminar el cliente porque tiene sedes o equipos asociados.'
+            ], 409);
+        }
+
         $cliente->delete();
 
         return response()->json([
@@ -100,11 +110,45 @@ class ClienteController extends Controller
         }
 
         $ids = collect($request->all())->pluck('cli_id')->all();
+
+        $clientesBloqueados = collect($ids)
+            ->filter(fn ($id) => $this->clienteTieneDependencias($id))
+            ->values()
+            ->all();
+
+        if (!empty($clientesBloqueados)) {
+            return response()->json([
+                'message' => 'No se pueden eliminar los clientes que tienen sedes o equipos asociados.',
+                'clientes_bloqueados' => $clientesBloqueados
+            ], 409);
+        }
+
         Cliente::whereIn('cli_id', $ids)->delete();
 
         return response()->json([
             'message' => 'Clientes eliminados exitosamente',
             'eliminadas' => $ids
         ], 200);
+    }
+
+    private function clienteTieneDependencias(string $id): bool
+    {
+        if (ClienteSede::where('cli_id', $id)->exists()) {
+            return true;
+        }
+
+        if (DB::table('cliente_equipo')
+            ->where('cli_id', $id)
+            ->whereNull('deleted_at')
+            ->exists()) {
+            return true;
+        }
+
+        return Equipo::whereIn('cls_id', function ($query) use ($id) {
+            $query->select('cls_id')
+                ->from('cliente_sedes')
+                ->where('cli_id', $id)
+                ->whereNull('deleted_at');
+        })->exists();
     }
 }
