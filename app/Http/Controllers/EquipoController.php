@@ -17,7 +17,7 @@ class EquipoController extends Controller
             'cls_id' => 'nullable|integer|exists:cliente_sedes,cls_id'
         ]);
 
-        $query = Equipo::with(['marca', 'tipoEquipo', 'sede'])->whereNull('deleted_at');
+        $query = Equipo::with(['marca', 'tipoEquipo', 'sede.cliente'])->whereNull('deleted_at');
 
         if (!empty($validatedData['cls_id'])) {
             $query->where('cls_id', $validatedData['cls_id']);
@@ -52,7 +52,7 @@ class EquipoController extends Controller
             ], 422);
         }
 
-        $equipos = Equipo::with(['marca', 'tipoEquipo', 'sede'])
+        $equipos = Equipo::with(['marca', 'tipoEquipo', 'sede.cliente'])
             ->whereNull('deleted_at')
             ->where('cls_id', (int) $cls_id)
             ->get();

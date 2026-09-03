@@ -13,7 +13,7 @@ class BateriaController extends Controller
     public function index()
     {
         // Obtener todas las baterías
-        $baterias = Bateria::whereNull('deleted_at')->get();
+        $baterias = Bateria::with('marca')->whereNull('deleted_at')->get();
 
         return response()->json([
             'message' => 'Respuesta Ok',
@@ -38,6 +38,7 @@ class BateriaController extends Controller
         }
 
         $bateria = Bateria::create($request->all());
+        $bateria->load('marca');
 
         return response()->json([
             'message' => 'Batería creada exitosamente',
@@ -82,6 +83,7 @@ class BateriaController extends Controller
         }
 
         $bateria->update($request->all());
+        $bateria->load('marca');
 
         return response()->json([
             'message' => 'Batería actualizada exitosamente',
