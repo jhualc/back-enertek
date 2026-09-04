@@ -27,23 +27,48 @@ class ClienteController extends Controller
     /**
      * Almacena un nuevo cliente en la base de datos.
      */
-    public function store(Request $request)
+
+public function store(Request $request)
 {
     \Log::info('Request recibido en store:', $request->all());
 
-    $validatedData = $request->validate([
+    $request->validate([
         'cli_nombre' => 'required|string|max:255',
-        'cli_identificacion' => 'required|string|max:50|unique:cliente,cli_identificacion',
+        'cli_identificacion' => 'required|string|max:50',
         'cli_tipo_identificacion' => 'required|string|max:50',
+    ], [
+        'cli_nombre.required' => 'El nombre del cliente es obligatorio.',
+        'cli_identificacion.required' => 'La identificación es obligatoria.',
+        'cli_tipo_identificacion.required' => 'El tipo de identificación es obligatorio.',
     ]);
 
-    $cliente = Cliente::create($validatedData);
+    // Buscar si ya existe el cliente
+    $clienteExistente = Cliente::where(
+        'cli_identificacion',
+        $request->cli_identificacion
+    )->first();
+
+    if ($clienteExistente) {
+        return response()->json([
+            'message' => 'El cliente ya existe.',
+            'data' => $clienteExistente
+        ], 409);
+    }
+
+    // Crear cliente
+    $cliente = Cliente::create([
+        'cli_nombre' => $request->cli_nombre,
+        'cli_identificacion' => $request->cli_identificacion,
+        'cli_tipo_identificacion' => $request->cli_tipo_identificacion,
+    ]);
 
     return response()->json([
         'message' => 'Cliente creado exitosamente',
         'data' => $cliente
     ], 201);
 }
+
+
 
 
     /**
